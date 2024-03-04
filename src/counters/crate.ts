@@ -7,10 +7,27 @@ export class Crate extends CounterBase {
   private Food: typeof FoodBase;
 
   constructor({ x, y, Food }: { x: number; y: number; Food: typeof FoodBase }) {
+    const graphicMembers = [
+      {
+        graphic: mainSpriteSheet.getSprite(25, 11)?.clone() as ex.Sprite,
+        offset: ex.Vector.Zero,
+      },
+    ];
+
+    const foodSprite = new Food({ x: 0, y: 0 }).getSprite();
+    if (foodSprite) {
+      graphicMembers.push({
+        graphic: foodSprite as ex.Sprite,
+        offset: ex.Vector.Zero,
+      });
+    }
+
     super({
       x,
       y,
-      sprite: mainSpriteSheet.getSprite(25, 11)?.clone() as ex.Sprite,
+      sprite: new ex.GraphicsGroup({
+        members: graphicMembers,
+      }),
     });
 
     this.Food = Food;

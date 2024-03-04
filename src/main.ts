@@ -1,9 +1,10 @@
 import * as ex from "excalibur";
 import { Resources, loader } from "./resources";
-import { Kitchen } from "./scenes/kitchen";
+import { Kitchen1 } from "./scenes/kitchenLevels/kitchen1";
+import { Player } from "./player";
 
 const engine = new ex.Engine({
-  backgroundColor: ex.Color.fromHex("#888888"),
+  backgroundColor: ex.Color.fromHex("#0a0a0a"),
   width: 800,
   height: 600,
   fixedUpdateFps: 60,
@@ -15,7 +16,9 @@ ex.CollisionGroupManager.create("counter");
 ex.CollisionGroupManager.create("projectile");
 ex.CollisionGroupManager.create("food");
 
-const kitchen = new Kitchen();
+const player = new Player({ x: 0, y: 0 });
+
+const kitchen = new Kitchen1({ player });
 engine.add("kitchen", kitchen);
 
 // Game events to handle

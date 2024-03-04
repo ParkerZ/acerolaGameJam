@@ -2,6 +2,10 @@
 
 Entry to Acerola Game Jam
 
+## Trello
+
+https://trello.com/b/co5Vup2G/acerola-jam
+
 ## Playable Demo
 
 Coming soon

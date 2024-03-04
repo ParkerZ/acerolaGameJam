@@ -4,9 +4,13 @@ import { CounterBase } from "./counterBase";
 import { HoldableItem } from "../items/holdableItem";
 import { Plate } from "../items/plate";
 import { ActorEvents } from "excalibur/build/dist/Actor";
+import { DeliveryEvent } from "../types";
 
 export class DeliveryStation extends CounterBase {
-  public events = new ex.EventEmitter<ActorEvents & { newEvent: Event }>();
+  public events = new ex.EventEmitter<
+    ActorEvents & { deliveryevent: DeliveryEvent }
+  >();
+
   constructor({ x, y }: { x: number; y: number }) {
     super({
       x,
@@ -15,17 +19,19 @@ export class DeliveryStation extends CounterBase {
     });
   }
 
+  public setPos(pos: ex.Vector) {
+    this.pos = pos;
+  }
+
   public onTake() {
     return undefined;
   }
 
   public onGive(item: HoldableItem) {
-    this.events.emit("newEvent", {
-      data: "stuff",
-    });
-
     if (item instanceof Plate) {
-      console.log(item.getContents());
+      this.events.emit("deliveryevent", {
+        dishIngredients: item.getContents(),
+      });
       item.kill();
       return true;
     }
