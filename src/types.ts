@@ -5,3 +5,5 @@ export interface DeliveryEvent extends Event {
 }
 
 export interface OrderExpiredEvent extends Event {}
+
+export interface OrdersClearedEvent extends Event {}

@@ -18,14 +18,14 @@ export class Order extends ex.ScreenElement {
   private statusBar: StatusBar;
 
   constructor({
-    x,
-    y,
+    x = 10,
+    y = 10,
     dish,
     waitTimeMs = ORDER_TIMEOUT_MS,
     price = 1,
   }: {
-    x: number;
-    y: number;
+    x?: number;
+    y?: number;
     dish: Set<FoodType>;
     waitTimeMs?: number;
     price?: number;
@@ -118,5 +118,9 @@ export class Order extends ex.ScreenElement {
     this.statusBar.setCurrVal(Math.max(this.waitTimeMs, 0));
 
     setTimeout(() => this.startCountdown(), 100);
+  }
+
+  onPreKill(scene: ex.Scene<unknown>): void {
+    this.statusBar.kill();
   }
 }

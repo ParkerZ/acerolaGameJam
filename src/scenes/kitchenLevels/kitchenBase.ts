@@ -5,8 +5,13 @@ import { Player } from "../../player";
 import { mainSpriteSheet } from "../../resources";
 import { CounterBase } from "../../counters/counterBase";
 import { ORDER_DELAY_MS } from "../../constants";
+import { OrdersClearedEvent } from "../../types";
 
 export class KitchenBase extends ex.Scene {
+  public events = new ex.EventEmitter<
+    ex.SceneEvents & { orderscleared: OrdersClearedEvent }
+  >();
+
   private currentOrders: Order[] = [];
   private player: Player;
   private isOrderingClosed: boolean = false;
@@ -23,14 +28,9 @@ export class KitchenBase extends ex.Scene {
 
   onInitialize(engine: ex.Engine<any>): void {
     const tileSprite = mainSpriteSheet.getSprite(10, 0)?.clone() as ex.Sprite;
-    // const tileSprite = invertSpriteSheet.getSprite(11, 0)?.clone() as ex.Sprite;
 
     for (let x = 0; x < 13; x++) {
       for (let y = 0; y < 13; y++) {
-        // if (Math.floor(Math.random() * 4) !== 0) {
-        //   continue;
-        // }
-
         const floorTile = new ex.ScreenElement({
           x: -32,
           y: -32,
@@ -109,7 +109,7 @@ export class KitchenBase extends ex.Scene {
       this.currentOrders.forEach((order, i) => order.setPosByIndex(i));
 
       if (this.isOrderingClosed && this.currentOrders.length === 0) {
-        console.log("ALL CLEAR!");
+        this.events.emit("orderscleared");
       }
     });
   }
@@ -121,7 +121,6 @@ export class KitchenBase extends ex.Scene {
     engine.add(nextOrder);
 
     nextOrder.events.on("orderexpired", (event) => {
-      console.log("EXPIRED!");
       const orderToClear = this.currentOrders.findIndex(
         (order) => order === nextOrder
       );
@@ -135,6 +134,10 @@ export class KitchenBase extends ex.Scene {
       engine.remove(this.currentOrders[orderToClear]);
       this.currentOrders.splice(orderToClear, 1);
       this.currentOrders.forEach((order, i) => order.setPosByIndex(i));
+
+      if (this.isOrderingClosed && this.currentOrders.length === 0) {
+        this.events.emit("orderscleared");
+      }
     });
 
     this.ordersToDisribute.splice(0, 1);
@@ -147,5 +150,25 @@ export class KitchenBase extends ex.Scene {
     setTimeout(() => {
       this.distributeOrders(engine);
     }, ORDER_DELAY_MS);
+  }
+
+  onDeactivate(context: ex.SceneActivationContext<undefined>): void {
+    this.currentOrders.forEach((order) => {
+      order.kill();
+      context.engine.remove(order);
+    });
+
+    this.ordersToDisribute.forEach((order) => {
+      order.kill();
+      context.engine.remove(order);
+    });
+
+    this.counters.forEach((counter) => {
+      counter.kill();
+      context.engine.remove(counter);
+    });
+
+    this.deliveryStation.kill();
+    context.engine.remove(this.deliveryStation);
   }
 }

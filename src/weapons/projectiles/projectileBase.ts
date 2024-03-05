@@ -1,9 +1,14 @@
 import * as ex from "excalibur";
+import { Wall } from "../../wall";
+import { FoodBase } from "../../items/foodItems/foodBase";
 
 export class ProjectileBase extends ex.Actor {
   private sprite: ex.Graphic;
   private decayMS: number;
+  private direction: ex.Vector;
+
   protected damage: number;
+  protected speed: number = 0;
 
   // TODO: needs velocity, collider
   constructor({
@@ -34,11 +39,16 @@ export class ProjectileBase extends ex.Actor {
 
     this.sprite = sprite;
     this.decayMS = decayMS;
+    this.direction = direction;
     this.damage = damage;
   }
 
   onInitialize(engine: ex.Engine<any>): void {
     this.graphics.use(this.sprite);
+    this.vel = ex.vec(
+      this.direction.x * this.speed,
+      this.direction.y * this.speed
+    );
 
     setTimeout(() => {
       this.kill();
@@ -47,5 +57,19 @@ export class ProjectileBase extends ex.Actor {
 
   public getDamage(): number {
     return this.damage;
+  }
+
+  onCollisionStart(
+    self: ex.Collider,
+    other: ex.Collider,
+    side: ex.Side,
+    contact: ex.CollisionContact
+  ): void {
+    if (
+      other.owner instanceof Wall ||
+      (other.owner instanceof FoodBase && other.owner.getHealth() > 0)
+    ) {
+      this.kill();
+    }
   }
 }

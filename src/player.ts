@@ -6,6 +6,9 @@ import { WeaponBase } from "./weapons/weaponBase";
 import { HoldableItem } from "./items/holdableItem";
 import { Plate } from "./items/plate";
 import { StatusBar } from "./statusBar";
+import { Handgun } from "./weapons/handgun";
+import { Shotgun } from "./weapons/shotgun";
+import { Sniper } from "./weapons/sniper";
 
 export class Player extends ex.Actor {
   // TODO: coin counter
@@ -28,7 +31,7 @@ export class Player extends ex.Actor {
       collider: ex.Shape.Capsule(48, 48),
     });
 
-    this.weapon = new Knife();
+    this.weapon = new Sniper();
     this.healthBar = new StatusBar({
       x: 0,
       y: 0,
@@ -71,7 +74,6 @@ export class Player extends ex.Actor {
   onPreUpdate(engine: ex.Engine<any>, delta: number): void {
     this.handleMovement(engine);
     this.handleInteraction(engine);
-    // this.handleAttack(engine);
   }
 
   private handleMovement(engine: ex.Engine<any>): void {
@@ -147,7 +149,7 @@ export class Player extends ex.Actor {
   }
 
   private handleAttack(engine: ex.Engine<any>, event: ex.PointerEvent) {
-    if (event.button !== ex.PointerButton.Left) {
+    if (event.button !== ex.PointerButton.Left || this.heldItem) {
       return;
     }
 
