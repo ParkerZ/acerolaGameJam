@@ -21,6 +21,7 @@ export class ProjectileShotgun extends ProjectileBase {
       sprite: buckshotSprite,
       decayMS: 100,
       damage: 5,
+      knockBack: 150,
       collider: ex.Shape.Box(buckshotSprite.width, buckshotSprite.height),
     });
   }

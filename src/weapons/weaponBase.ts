@@ -5,6 +5,7 @@ import { ProjectileKnife } from "./projectiles/projectileKnife";
 export class WeaponBase extends ex.Actor {
   protected cooldownMS: number;
   protected onCooldown: boolean = false;
+  protected nearCooldownEnd: boolean = false;
   protected Projectile: typeof ProjectileKnife;
   protected movementPenalty: number;
   protected numProjectiles: number;
@@ -32,6 +33,14 @@ export class WeaponBase extends ex.Actor {
     this.spreadTotalAngleRadians = spreadTotalAngleRadians;
   }
 
+  public getOnCooldown() {
+    return this.onCooldown;
+  }
+
+  public getNearCooldownEnd() {
+    return this.nearCooldownEnd;
+  }
+
   public attack(
     engine: ex.Engine<any>,
     direction: ex.Vector,
@@ -41,6 +50,7 @@ export class WeaponBase extends ex.Actor {
       return;
     }
 
+    this.nearCooldownEnd = false;
     this.onCooldown = true;
 
     for (let i = 0; i < this.numProjectiles; i++) {
@@ -63,6 +73,10 @@ export class WeaponBase extends ex.Actor {
     setTimeout(() => {
       this.onCooldown = false;
     }, this.cooldownMS);
+
+    setTimeout(() => {
+      this.nearCooldownEnd = true;
+    }, (this.cooldownMS * 3) / 5);
   }
 
   public getIsAttacking(): boolean {

@@ -6,12 +6,15 @@ import { WeaponBase } from "./weapons/weaponBase";
 import { HoldableItem } from "./items/holdableItem";
 import { Plate } from "./items/plate";
 import { StatusBar } from "./statusBar";
+import { WeaponType } from "./types";
+import { selectRandom } from "./util";
 import { Handgun } from "./weapons/handgun";
 import { Shotgun } from "./weapons/shotgun";
 import { Sniper } from "./weapons/sniper";
 
 export class Player extends ex.Actor {
   // TODO: coin counter
+  private isEnabled = true;
   private velocity = 400;
   private targetCounter: CounterBase | undefined;
   private possibleCounters: CounterBase[] = [];
@@ -19,33 +22,60 @@ export class Player extends ex.Actor {
   private weapon: WeaponBase;
   private numCoins: number = 0;
 
+  private sprite: ex.Graphic;
+
+  private maxHealth: number = 100;
   private health: number = 100;
   private healthBar: StatusBar;
+
+  private damageCooldownMap: Record<string, number> = {};
+  private damageCooldownMs = 500;
+  protected knockBackForce: ex.Vector = ex.Vector.Zero;
+
+  private isAttacking: boolean = false;
+  private attackInputs: number = 0;
 
   constructor({ x, y }: { x: number; y: number }) {
     super({
       x,
       y,
+      z: 2,
       collisionType: ex.CollisionType.Active,
       collisionGroup: ex.CollisionGroupManager.groupByName("player"),
       collider: ex.Shape.Capsule(48, 48),
     });
 
-    this.weapon = new Sniper();
+    const Weapon = selectRandom([Knife, Handgun, Shotgun, Sniper]);
+    this.weapon = new Knife();
     this.healthBar = new StatusBar({
       x: 0,
       y: 0,
-      maxVal: this.health,
+      maxVal: this.maxHealth,
       size: "lg",
     });
+
+    this.sprite = mainSpriteSheet.getSprite(17, 13)?.clone() as ex.Sprite;
   }
 
   public setPos(pos: ex.Vector) {
     this.pos = pos;
   }
 
+  public setIsEnabled(val: boolean) {
+    this.isEnabled = val;
+  }
+
+  public getCoins() {
+    return this.numCoins;
+  }
+
   public addCoins(val: number) {
     this.numCoins += val;
+    console.log("Player coins", this.numCoins);
+  }
+
+  public loseCoins(val: number) {
+    this.numCoins -= val;
     console.log("Player coins", this.numCoins);
   }
 
@@ -54,9 +84,36 @@ export class Player extends ex.Actor {
     this.healthBar.setCurrVal(Math.max(this.health, 0));
   }
 
+  public healToFull() {
+    this.health = this.maxHealth;
+    this.healthBar.setCurrVal(Math.max(this.health));
+  }
+
+  public switchWeapon(Weapon: WeaponType) {
+    this.weapon.kill();
+    this.weapon = new Weapon();
+  }
+
+  public handleEnemyAttack(
+    enemyName: string,
+    damage: number,
+    knockBackForce: ex.Vector
+  ) {
+    if (this.damageCooldownMap[enemyName]) {
+      return;
+    }
+
+    this.damageCooldownMap[enemyName] = damage;
+    this.loseHealth(damage);
+    this.knockBackForce = this.knockBackForce.add(knockBackForce);
+
+    setTimeout(() => {
+      delete this.damageCooldownMap[enemyName];
+    }, this.damageCooldownMs);
+  }
+
   onInitialize(engine: ex.Engine<any>): void {
-    const sprite = mainSpriteSheet.getSprite(8, 7)?.clone() as ex.Sprite;
-    this.graphics.show(sprite);
+    this.graphics.use(this.sprite);
 
     this.healthBar.setPos(
       ex.vec(engine.halfDrawWidth, (engine.drawHeight * 94) / 100)
@@ -67,21 +124,55 @@ export class Player extends ex.Actor {
     this.on("collisionend", (evt) => this.collisionEnd(engine, evt));
 
     engine.input.pointers.primary.on("down", (evt) =>
-      this.handleAttack(engine, evt)
+      this.handlePointerEvent(evt)
+    );
+
+    engine.input.pointers.primary.on("up", (evt) =>
+      this.handlePointerEvent(evt)
     );
   }
 
   onPreUpdate(engine: ex.Engine<any>, delta: number): void {
+    if (!this.isEnabled) {
+      return;
+    }
+
     this.handleMovement(engine);
     this.handleInteraction(engine);
+    this.handleAttack(engine);
+
+    const mousePos = engine.input.pointers.primary.lastScreenPos;
+    const direction = mousePos.sub(
+      ex.vec(engine.halfDrawWidth, engine.halfDrawHeight)
+    );
+
+    this.sprite.rotation = Math.atan2(direction.x, -direction.y);
+  }
+
+  private handlePointerEvent(event: ex.PointerEvent) {
+    if (event.button !== ex.PointerButton.Left || this.heldItem) {
+      return;
+    }
+
+    switch (event.type) {
+      case "down":
+        this.isAttacking = true;
+        if (this.weapon.getNearCooldownEnd()) {
+          this.attackInputs = 1;
+        }
+        break;
+      case "up":
+        this.isAttacking = false;
+        break;
+    }
   }
 
   private handleMovement(engine: ex.Engine<any>): void {
     // Change movement speed if attacking
-    // TODO: should probably respect projectile instead of weapon to slow down?
-    const velocity = this.weapon.getIsAttacking()
-      ? this.velocity - this.weapon.getMovementPenalty()
-      : this.velocity;
+    const velocity =
+      this.isAttacking && !this.weapon.getNearCooldownEnd()
+        ? this.velocity - this.weapon.getMovementPenalty()
+        : this.velocity;
 
     let moveX = 0;
     let moveY = 0;
@@ -102,13 +193,23 @@ export class Player extends ex.Actor {
       moveY += velocity;
     }
 
-    if (!moveX && !moveY) {
-      this.vel = ex.vec(0, 0);
-      return;
+    const intendedVel =
+      !moveX && !moveY
+        ? ex.vec(0, 0)
+        : ex.vec(moveX, moveY).normalize().scale(velocity);
+
+    console.log(this.knockBackForce.size);
+    if (this.knockBackForce.size > 0) {
+      this.vel = intendedVel.add(this.knockBackForce);
+    } else {
+      this.vel = intendedVel;
     }
 
-    const moveDir = ex.vec(moveX, moveY).normalize().scale(velocity);
-    this.vel = moveDir;
+    if (this.knockBackForce.size > 1) {
+      this.knockBackForce = this.knockBackForce.scale(0.9);
+    } else {
+      this.knockBackForce = ex.Vector.Zero;
+    }
   }
 
   private handleInteraction(engine: ex.Engine<any>): void {
@@ -148,13 +249,25 @@ export class Player extends ex.Actor {
     }
   }
 
-  private handleAttack(engine: ex.Engine<any>, event: ex.PointerEvent) {
-    if (event.button !== ex.PointerButton.Left || this.heldItem) {
+  private handleAttack(engine: ex.Engine<any>) {
+    if (!this.attackInputs && !this.isAttacking) {
       return;
     }
 
+    if (this.weapon.getOnCooldown()) {
+      return;
+    }
+
+    this.attackInputs = Math.max(this.attackInputs - 1, 0);
+
     const mousePos = engine.input.pointers.primary.lastScreenPos;
-    const direction = mousePos.sub(this.pos).normalize();
+    const direction = mousePos
+      .sub(
+        ex
+          .vec(engine.halfDrawWidth, engine.halfDrawHeight)
+          .add(this.pos.sub(engine.currentScene.camera.pos))
+      )
+      .normalize();
     this.weapon.attack(engine, direction, this.pos);
   }
 

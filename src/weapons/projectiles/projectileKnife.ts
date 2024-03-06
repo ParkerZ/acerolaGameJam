@@ -19,6 +19,7 @@ export class ProjectileKnife extends ProjectileBase {
       sprite: slashSprite,
       decayMS: 50,
       damage: 10,
+      knockBack: 500,
       collider: ex.Shape.Box(slashSprite.width, slashSprite.height),
     });
   }

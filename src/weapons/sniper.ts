@@ -6,7 +6,7 @@ export class Sniper extends WeaponBase {
   constructor() {
     super({
       cooldownMS: 1000,
-      movementPenalty: 0,
+      movementPenalty: 200,
       Projectile: ProjectileSniper,
     });
   }

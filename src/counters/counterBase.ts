@@ -12,7 +12,7 @@ export abstract class CounterBase extends ex.Actor {
       y,
       collisionType: ex.CollisionType.Passive,
       collisionGroup: ex.CollisionGroupManager.groupByName("counter"),
-      collider: ex.Shape.Capsule(70, 70),
+      collider: ex.Shape.Capsule(72, 72),
     });
 
     this.sprite = sprite;
@@ -22,7 +22,7 @@ export abstract class CounterBase extends ex.Actor {
     if (val) {
       this.activeActor = new ex.Actor({ pos: this.pos, z: -1 });
       this.activeActor.graphics.use(
-        new ex.Circle({ radius: 35, color: ex.Color.Green })
+        new ex.Circle({ radius: 36, color: ex.Color.Green })
       );
       engine.add(this.activeActor);
       return;

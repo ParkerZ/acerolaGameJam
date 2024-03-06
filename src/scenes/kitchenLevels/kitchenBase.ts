@@ -6,6 +6,7 @@ import { mainSpriteSheet } from "../../resources";
 import { CounterBase } from "../../counters/counterBase";
 import { ORDER_DELAY_MS } from "../../constants";
 import { OrdersClearedEvent } from "../../types";
+import { selectRandom } from "../../util";
 
 export class KitchenBase extends ex.Scene {
   public events = new ex.EventEmitter<
@@ -27,17 +28,22 @@ export class KitchenBase extends ex.Scene {
   }
 
   onInitialize(engine: ex.Engine<any>): void {
-    const tileSprite = mainSpriteSheet.getSprite(10, 0)?.clone() as ex.Sprite;
+    this.player.setIsEnabled(true);
 
     for (let x = 0; x < 13; x++) {
       for (let y = 0; y < 13; y++) {
+        const tileSprite = mainSpriteSheet
+          .getSprite(10, 0)
+          ?.clone() as ex.Sprite;
+
         const floorTile = new ex.ScreenElement({
           x: -32,
           y: -32,
           z: -2,
         });
 
-        tileSprite.rotation += Math.PI / 2;
+        tileSprite.rotation = selectRandom([Math.PI / 2, (Math.PI * 3) / 2]);
+
         floorTile.graphics.show(tileSprite, {
           offset: ex.vec(x * 64, y * 64),
         });

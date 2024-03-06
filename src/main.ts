@@ -1,8 +1,10 @@
 import * as ex from "excalibur";
-import { Resources, loader } from "./resources";
+import { loader } from "./resources";
 import { Kitchen1 } from "./scenes/kitchenLevels/kitchen1";
 import { Player } from "./player";
-import { Shop } from "./scenes/shop";
+import { Shop } from "./scenes/shopLevels/shop";
+import { ShopHandgun } from "./scenes/shopLevels/shopItems/shopHandgun";
+import { VampireLevel1 } from "./scenes/vampireLevels/vampireLevel1";
 
 const buildSceneWithTransitions = (scene: ex.Scene) => ({
   scene,
@@ -44,13 +46,19 @@ ex.CollisionGroupManager.create(
 const player = new Player({ x: 0, y: 0 });
 
 const kitchen1 = new Kitchen1({ player });
-const shop = new Shop({ player });
+const shop = new Shop({ player, seedWeapons: [ShopHandgun] });
+const vampireLevel1 = new VampireLevel1({ player });
 
 engine.add("kitchen1", buildSceneWithTransitions(kitchen1));
 engine.add("shop", buildSceneWithTransitions(shop));
+engine.add("vampire1", buildSceneWithTransitions(vampireLevel1));
 
 kitchen1.events.on("orderscleared", () => {
-  engine.goto("shop");
+  engine.start("shop");
+});
+
+shop.events.on("loadnextlevel", () => {
+  engine.start("vampire1");
 });
 
 // Game events to handle

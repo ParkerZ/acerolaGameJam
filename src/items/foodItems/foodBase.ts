@@ -43,7 +43,7 @@ export class FoodBase extends HoldableItem {
   onPreUpdate(engine: ex.Engine<any>, delta: number): void {
     if (this.isStatusShowing) {
       this.statusBar.setPos(ex.vec(this.pos.x, this.pos.y + 20));
-      this.statusBar.setCurrVal(Math.max(this.maxHealth - this.health, 0));
+      this.statusBar.setCurrVal(Math.max(this.health, 0));
     }
 
     if (this.health !== this.maxHealth && !this.isStatusShowing) {
