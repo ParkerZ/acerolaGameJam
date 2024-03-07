@@ -11,8 +11,9 @@ import { Food3 } from "../../items/foodItems/food3";
 import { COUNTER_WIDTH } from "../../constants";
 import { KitchenBase } from "./kitchenBase";
 import { FoodType } from "../../types";
+import { AberrantOrder } from "../../aberrantOrder";
 
-export class Kitchen1 extends KitchenBase {
+export class Kitchen5 extends KitchenBase {
   constructor({ player }: { player: Player }) {
     super({ player });
   }
@@ -21,44 +22,44 @@ export class Kitchen1 extends KitchenBase {
     this.counters = [
       new PlateRack({
         x: engine.halfDrawWidth - COUNTER_WIDTH * 2,
-        y: engine.halfDrawHeight + COUNTER_WIDTH * 1,
-      }),
-      new Counter({
-        x: engine.halfDrawWidth - COUNTER_WIDTH * 2,
-        y: engine.halfDrawHeight + COUNTER_WIDTH * 2,
-      }),
-      new Counter({
-        x: engine.halfDrawWidth - COUNTER_WIDTH * 2,
-        y: engine.halfDrawHeight + COUNTER_WIDTH * 0,
-      }),
-      new Counter({
-        x: engine.halfDrawWidth - COUNTER_WIDTH * 2,
-        y: engine.halfDrawHeight - COUNTER_WIDTH * 1,
-      }),
-      new Counter({
-        x: engine.halfDrawWidth - COUNTER_WIDTH * 2,
         y: engine.halfDrawHeight - COUNTER_WIDTH * 2,
       }),
-      new Crate({
+      new Trash({
+        x: engine.halfDrawWidth - COUNTER_WIDTH * 2,
+        y: engine.halfDrawHeight - COUNTER_WIDTH * 0,
+      }),
+      new Trash({
+        x: engine.halfDrawWidth - COUNTER_WIDTH * 1,
+        y: engine.halfDrawHeight - COUNTER_WIDTH * 0,
+      }),
+      new Trash({
+        x: engine.halfDrawWidth + COUNTER_WIDTH * 1,
+        y: engine.halfDrawHeight - COUNTER_WIDTH * 0,
+      }),
+      new Trash({
         x: engine.halfDrawWidth + COUNTER_WIDTH * 2,
+        y: engine.halfDrawHeight - COUNTER_WIDTH * 0,
+      }),
+      new Crate({
+        x: engine.halfDrawWidth - COUNTER_WIDTH * 1,
         y: engine.halfDrawHeight - COUNTER_WIDTH * 2,
         Food: Food1,
       }),
       new Crate({
-        x: engine.halfDrawWidth + COUNTER_WIDTH * 2,
-        y: engine.halfDrawHeight - COUNTER_WIDTH * 1,
+        x: engine.halfDrawWidth + COUNTER_WIDTH * 1,
+        y: engine.halfDrawHeight - COUNTER_WIDTH * 2,
         Food: Food2,
       }),
       new Crate({
         x: engine.halfDrawWidth + COUNTER_WIDTH * 2,
-        y: engine.halfDrawHeight + COUNTER_WIDTH * 0,
+        y: engine.halfDrawHeight - COUNTER_WIDTH * 2,
         Food: Food3,
       }),
       new Counter({
-        x: engine.halfDrawWidth + COUNTER_WIDTH * 2,
-        y: engine.halfDrawHeight + COUNTER_WIDTH * 1,
+        x: engine.halfCanvasWidth - COUNTER_WIDTH * 2,
+        y: engine.halfDrawHeight + COUNTER_WIDTH * 2,
       }),
-      new Trash({
+      new Counter({
         x: engine.halfCanvasWidth + COUNTER_WIDTH * 2,
         y: engine.halfDrawHeight + COUNTER_WIDTH * 2,
       }),
@@ -71,6 +72,15 @@ export class Kitchen1 extends KitchenBase {
     };
 
     this.ordersToDisribute = [
+      new Order({
+        dish: new Set(createDish()),
+      }),
+      new Order({
+        dish: new Set(createDish()),
+      }),
+      new Order({
+        dish: new Set(createDish()),
+      }),
       new Order({
         dish: new Set(createDish()),
       }),

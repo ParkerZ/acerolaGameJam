@@ -20,7 +20,8 @@ export class EnemyBase extends ex.Actor {
   protected speed: number;
   protected target: Player;
   protected attackRange: number;
-  protected statusBar: StatusBar;
+  protected healthBar: StatusBar;
+  protected hasHealthBar: boolean = false;
   protected sprite: ex.Graphic;
   protected Pickup?: typeof CoinPickup;
 
@@ -67,7 +68,7 @@ export class EnemyBase extends ex.Actor {
     this.sprite = sprite;
     this.Pickup = Pickup;
 
-    this.statusBar = new StatusBar({
+    this.healthBar = new StatusBar({
       x: 0,
       y: 0,
       maxVal: this.maxHealth,
@@ -84,19 +85,28 @@ export class EnemyBase extends ex.Actor {
     return Math.max(this.health, 0);
   }
 
+  public onHit(damage: number, knockBackForce: ex.Vector) {
+    this.health -= damage;
+    this.healthBar.setCurrVal(Math.max(this.health, 0));
+    this.addKnockbackForce(knockBackForce);
+  }
+
   onInitialize(engine: ex.Engine<any>): void {
     this.graphics.use(this.sprite);
-
-    this.on("collisionstart", (evt) => this.collisionStart(engine, evt));
   }
 
   onPreUpdate(engine: ex.Engine<any>, delta: number): void {
     if (this.health < this.maxHealth) {
-      this.statusBar.setPos(
+      this.healthBar.setPos(
         ex
           .vec(engine.halfDrawWidth, engine.halfDrawHeight + 30)
           .add(this.pos.sub(engine.currentScene.camera.pos))
       );
+
+      if (!this.hasHealthBar) {
+        this.hasHealthBar = true;
+        engine.add(this.healthBar);
+      }
     }
 
     if (this.health <= 0) {
@@ -136,32 +146,7 @@ export class EnemyBase extends ex.Actor {
   }
 
   onPreKill(scene: ex.Scene<unknown>): void {
-    this.statusBar.kill();
-    scene.engine.remove(this.statusBar);
-  }
-
-  private collisionStart(
-    engine: ex.Engine<any>,
-    event: ex.CollisionStartEvent<ex.Actor>
-  ): void {
-    if (event.other instanceof ProjectileBase) {
-      this.takeDamage(engine, event.other.getDamage());
-      this.addKnockbackForce(event.other.getKnockbackForce());
-    }
-  }
-
-  private takeDamage(engine: ex.Engine<any>, damage: number) {
-    this.health -= damage;
-    this.updateStatusBar(engine);
-    engine.add(this.statusBar);
-  }
-
-  private updateStatusBar(engine: ex.Engine<any>) {
-    this.statusBar.setPos(
-      ex
-        .vec(engine.halfDrawWidth, engine.halfDrawHeight + 30)
-        .add(this.pos.sub(engine.currentScene.camera.pos))
-    );
-    this.statusBar.setCurrVal(Math.max(this.health, 0));
+    this.healthBar.kill();
+    scene.engine.remove(this.healthBar);
   }
 }

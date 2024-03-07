@@ -21,6 +21,7 @@ export class ProjectileKnife extends ProjectileBase {
       damage: 10,
       knockBack: 500,
       collider: ex.Shape.Box(slashSprite.width, slashSprite.height),
+      canMultiHitEnemy: true,
     });
   }
 }

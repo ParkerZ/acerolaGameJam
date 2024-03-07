@@ -11,11 +11,16 @@ import { selectRandom } from "./util";
 import { Handgun } from "./weapons/handgun";
 import { Shotgun } from "./weapons/shotgun";
 import { Sniper } from "./weapons/sniper";
+import { SubMachineGun } from "./weapons/subMachineGun";
+import { FoodBase } from "./items/foodItems/foodBase";
+import { PlateRack } from "./counters/plateRack";
+import { HeavyMachineGun } from "./weapons/heavyMachineGun";
+import { Raygun } from "./weapons/raygun";
 
 export class Player extends ex.Actor {
   // TODO: coin counter
   private isEnabled = true;
-  private velocity = 400;
+  private velocity = 350;
   private targetCounter: CounterBase | undefined;
   private possibleCounters: CounterBase[] = [];
   private heldItem: HoldableItem | undefined;
@@ -45,24 +50,40 @@ export class Player extends ex.Actor {
       collider: ex.Shape.Capsule(48, 48),
     });
 
-    const Weapon = selectRandom([Knife, Handgun, Shotgun, Sniper]);
+    const Weapon = selectRandom([
+      Knife,
+      Handgun,
+      Shotgun,
+      Sniper,
+      SubMachineGun,
+      HeavyMachineGun,
+      Raygun,
+    ]);
     this.weapon = new Knife();
     this.healthBar = new StatusBar({
       x: 0,
       y: 0,
+      z: 2,
       maxVal: this.maxHealth,
       size: "lg",
     });
 
-    this.sprite = mainSpriteSheet.getSprite(17, 13)?.clone() as ex.Sprite;
+    this.sprite = mainSpriteSheet.getSprite(25, 4)?.clone() as ex.Sprite;
   }
 
   public setPos(pos: ex.Vector) {
     this.pos = pos;
   }
 
-  public setIsEnabled(val: boolean) {
-    this.isEnabled = val;
+  public setIsEnabled(engine: ex.Engine<any>, val: boolean) {
+    if (val) {
+      this.onEnable(engine);
+      setTimeout(() => {
+        this.isEnabled = val;
+      }, 250);
+    } else {
+      this.isEnabled = val;
+    }
   }
 
   public getCoins() {
@@ -115,11 +136,6 @@ export class Player extends ex.Actor {
   onInitialize(engine: ex.Engine<any>): void {
     this.graphics.use(this.sprite);
 
-    this.healthBar.setPos(
-      ex.vec(engine.halfDrawWidth, (engine.drawHeight * 94) / 100)
-    );
-    engine.add(this.healthBar);
-
     this.on("collisionstart", (evt) => this.collisionStart(engine, evt));
     this.on("collisionend", (evt) => this.collisionEnd(engine, evt));
 
@@ -130,6 +146,24 @@ export class Player extends ex.Actor {
     engine.input.pointers.primary.on("up", (evt) =>
       this.handlePointerEvent(evt)
     );
+  }
+
+  private registerHud(engine: ex.Engine<any>): void {
+    engine.remove(this.healthBar);
+    this.healthBar.setPos(
+      ex.vec(engine.halfDrawWidth, (engine.drawHeight * 94) / 100)
+    );
+    engine.add(this.healthBar);
+  }
+
+  private onEnable(engine: ex.Engine<any>) {
+    this.registerHud(engine);
+    this.heldItem = undefined;
+    this.vel = ex.Vector.Zero;
+    this.isAttacking = false;
+    this.attackInputs = 0;
+    this.targetCounter = undefined;
+    this.possibleCounters = [];
   }
 
   onPreUpdate(engine: ex.Engine<any>, delta: number): void {
@@ -198,7 +232,6 @@ export class Player extends ex.Actor {
         ? ex.vec(0, 0)
         : ex.vec(moveX, moveY).normalize().scale(velocity);
 
-    console.log(this.knockBackForce.size);
     if (this.knockBackForce.size > 0) {
       this.vel = intendedVel.add(this.knockBackForce);
     } else {
@@ -214,6 +247,7 @@ export class Player extends ex.Actor {
 
   private handleInteraction(engine: ex.Engine<any>): void {
     if (this.heldItem && this.heldItem.getSprite()) {
+      this.isAttacking = false;
       this.heldItem.setPos(this.pos);
     }
 
@@ -225,18 +259,38 @@ export class Player extends ex.Actor {
     }
 
     if (this.heldItem) {
-      // clear held food if given successfully
       const giveSuccess = this.targetCounter.onGive(this.heldItem);
       if (giveSuccess) {
+        // try to give the item to targetCounter
+
         this.heldItem.setIsHeld(false);
         this.heldItem = undefined;
       } else if (this.heldItem instanceof Plate) {
+        // if failed and holding a plate, try to pickup a chopped food if present
         const counterItem = this.targetCounter.onTake();
         if (counterItem) {
-          const plateSuccess = this.heldItem.onTake(counterItem);
-          if (!plateSuccess) {
+          if (
+            !(
+              counterItem instanceof FoodBase &&
+              counterItem.getIsChopped() &&
+              this.heldItem.onTake(counterItem)
+            )
+          ) {
             this.targetCounter.onGive(counterItem);
           }
+        }
+      } else if (
+        this.heldItem instanceof FoodBase &&
+        this.heldItem.getIsChopped() &&
+        this.targetCounter instanceof PlateRack
+      ) {
+        const plate = this.targetCounter.onTake();
+        if (plate instanceof Plate) {
+          plate.onTake(this.heldItem);
+          this.heldItem = plate;
+          this.heldItem.setIsHeld(true);
+          this.heldItem.setPos(this.pos);
+          engine.add(this.heldItem);
         }
       }
     } else {

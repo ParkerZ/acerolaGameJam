@@ -9,6 +9,7 @@ export class FoodBase extends HoldableItem {
   protected maxHealth: number = 0;
   protected health: number = 0;
   protected foodType: FoodType = "food1";
+  protected isChopped: boolean = false;
 
   protected statusBar: StatusBar;
   private isStatusShowing: boolean = false;
@@ -28,6 +29,10 @@ export class FoodBase extends HoldableItem {
     });
   }
 
+  public getIsChopped() {
+    return this.isChopped;
+  }
+
   public getHealth(): number {
     return this.health;
   }
@@ -38,6 +43,14 @@ export class FoodBase extends HoldableItem {
 
   public getSprite(): ex.Graphic | undefined {
     return this.sprite;
+  }
+
+  public onHit(damage: number, _knockBackForce: ex.Vector) {
+    this.health -= damage;
+    if (this.health <= 0 && this.choppedSprite) {
+      this.isChopped = true;
+      this.graphics.use(this.choppedSprite);
+    }
   }
 
   onPreUpdate(engine: ex.Engine<any>, delta: number): void {
@@ -62,27 +75,28 @@ export class FoodBase extends HoldableItem {
     this.health = this.maxHealth;
     this.statusBar.setMaxVal(this.maxHealth);
 
-    this.on("collisionstart", (evt) => this.collisionStart(engine, evt));
+    // this.on("collisionstart", (evt) => this.collisionStart(engine, evt));
     super.onInitialize(engine);
   }
 
-  private collisionStart(
-    engine: ex.Engine<any>,
-    event: ex.CollisionStartEvent<ex.Actor>
-  ): void {
-    if (this.isHeld) {
-      return;
-    }
+  // private collisionStart(
+  //   engine: ex.Engine<any>,
+  //   event: ex.CollisionStartEvent<ex.Actor>
+  // ): void {
+  //   if (this.isHeld) {
+  //     return;
+  //   }
 
-    if (event.other instanceof ProjectileBase) {
-      this.chop(event.other.getDamage());
-    }
-  }
+  //   if (event.other instanceof ProjectileBase) {
+  //     this.chop(event.other.getDamage());
+  //   }
+  // }
 
-  private chop(damage: number) {
-    this.health -= damage;
-    if (this.health <= 0 && this.choppedSprite) {
-      this.graphics.use(this.choppedSprite);
-    }
-  }
+  // private chop(damage: number) {
+  //   this.health -= damage;
+  //   if (this.health <= 0 && this.choppedSprite) {
+  //     this.isChopped = true;
+  //     this.graphics.use(this.choppedSprite);
+  //   }
+  // }
 }

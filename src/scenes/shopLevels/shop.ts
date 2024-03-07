@@ -7,6 +7,7 @@ import { selectRandom } from "../../util";
 import { ShopShotgun } from "./shopItems/shopShotgun";
 import { ShopSniper } from "./shopItems/shopSniper";
 import { NextLevelButton } from "../../nextLevelButton";
+import { ShopSubMachineGun } from "./shopItems/shopSubMachineGun";
 
 export class Shop extends ex.Scene {
   public events = new ex.EventEmitter<
@@ -33,7 +34,8 @@ export class Shop extends ex.Scene {
   }
 
   onInitialize(engine: ex.Engine<any>): void {
-    this.player.setIsEnabled(false);
+    this.player.setIsEnabled(engine, false);
+    this.player.healToFull();
 
     for (let x = 0; x < 13; x++) {
       for (let y = 0; y < 13; y++) {
@@ -63,7 +65,12 @@ export class Shop extends ex.Scene {
       }
     }
 
-    const weaponOptions = new Set([ShopHandgun, ShopShotgun, ShopSniper]);
+    const weaponOptions = new Set([
+      ShopHandgun,
+      ShopShotgun,
+      ShopSniper,
+      ShopSubMachineGun,
+    ]);
     this.seedWeapons.forEach((seedWeapon) => weaponOptions.delete(seedWeapon));
 
     for (let i = 0; i < this.numWeapons; i++) {

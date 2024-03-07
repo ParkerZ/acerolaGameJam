@@ -4,13 +4,18 @@ import { Order } from "../../order";
 import { Player } from "../../player";
 import { mainSpriteSheet } from "../../resources";
 import { CounterBase } from "../../counters/counterBase";
-import { ORDER_DELAY_MS } from "../../constants";
-import { OrdersClearedEvent } from "../../types";
+import { COUNTER_WIDTH, ORDER_DELAY_MS } from "../../constants";
+import { NextCombatLevelEvent, OrdersClearedEvent } from "../../types";
 import { selectRandom } from "../../util";
+import { AberrantOrder } from "../../aberrantOrder";
+import { Wall } from "../../wall";
 
 export class KitchenBase extends ex.Scene {
   public events = new ex.EventEmitter<
-    ex.SceneEvents & { orderscleared: OrdersClearedEvent }
+    ex.SceneEvents & {
+      orderscleared: OrdersClearedEvent;
+      loadnextcombatlevel: NextCombatLevelEvent;
+    }
   >();
 
   private currentOrders: Order[] = [];
@@ -28,7 +33,7 @@ export class KitchenBase extends ex.Scene {
   }
 
   onInitialize(engine: ex.Engine<any>): void {
-    this.player.setIsEnabled(true);
+    this.player.setIsEnabled(engine, true);
 
     for (let x = 0; x < 13; x++) {
       for (let y = 0; y < 13; y++) {
@@ -52,12 +57,21 @@ export class KitchenBase extends ex.Scene {
       }
     }
 
+    this.addWalls(engine);
+
     this.player.setPos(ex.vec(engine.halfDrawWidth, engine.halfDrawHeight));
     engine.add(this.player);
 
     this.counters.forEach((counter) => {
       engine.add(counter);
     });
+
+    this.deliveryStation.setPos(
+      ex.vec(
+        engine.halfDrawWidth + COUNTER_WIDTH * 0,
+        engine.halfDrawHeight - COUNTER_WIDTH * 3
+      )
+    );
     engine.add(this.deliveryStation);
 
     const orders = [
@@ -88,7 +102,9 @@ export class KitchenBase extends ex.Scene {
       }),
     ];
 
-    this.distributeOrders(engine);
+    setTimeout(() => {
+      this.distributeOrders(engine);
+    }, ORDER_DELAY_MS / 2);
 
     this.deliveryStation.events.on("deliveryevent", (event) => {
       const orderToClear = this.currentOrders.findIndex((o) => {
@@ -120,6 +136,133 @@ export class KitchenBase extends ex.Scene {
     });
   }
 
+  private addWalls(engine: ex.Engine<any>) {
+    const walls = [
+      new Wall({
+        x: engine.halfDrawWidth - COUNTER_WIDTH * 3,
+        y: engine.halfDrawHeight - COUNTER_WIDTH * 3,
+        type: "cornerNW",
+      }),
+      new Wall({
+        x: engine.halfDrawWidth + COUNTER_WIDTH * 3,
+        y: engine.halfDrawHeight - COUNTER_WIDTH * 3,
+        type: "cornerNE",
+      }),
+      new Wall({
+        x: engine.halfDrawWidth - COUNTER_WIDTH * 3,
+        y: engine.halfDrawHeight + COUNTER_WIDTH * 3,
+        type: "cornerSW",
+      }),
+      new Wall({
+        x: engine.halfDrawWidth + COUNTER_WIDTH * 3,
+        y: engine.halfDrawHeight + COUNTER_WIDTH * 3,
+        type: "cornerSE",
+      }),
+      new Wall({
+        x: engine.halfDrawWidth + COUNTER_WIDTH * 3,
+        y: engine.halfDrawHeight + COUNTER_WIDTH * 2,
+        type: "vertical",
+      }),
+      new Wall({
+        x: engine.halfDrawWidth + COUNTER_WIDTH * 3,
+        y: engine.halfDrawHeight + COUNTER_WIDTH * 1,
+        type: "vertical",
+      }),
+      new Wall({
+        x: engine.halfDrawWidth + COUNTER_WIDTH * 3,
+        y: engine.halfDrawHeight + COUNTER_WIDTH * 0,
+        type: "vertical",
+      }),
+      new Wall({
+        x: engine.halfDrawWidth + COUNTER_WIDTH * 3,
+        y: engine.halfDrawHeight - COUNTER_WIDTH * 1,
+        type: "vertical",
+      }),
+      new Wall({
+        x: engine.halfDrawWidth + COUNTER_WIDTH * 3,
+        y: engine.halfDrawHeight - COUNTER_WIDTH * 2,
+        type: "vertical",
+      }),
+      new Wall({
+        x: engine.halfDrawWidth - COUNTER_WIDTH * 3,
+        y: engine.halfDrawHeight + COUNTER_WIDTH * 2,
+        type: "vertical",
+      }),
+      new Wall({
+        x: engine.halfDrawWidth - COUNTER_WIDTH * 3,
+        y: engine.halfDrawHeight + COUNTER_WIDTH * 1,
+        type: "vertical",
+      }),
+      new Wall({
+        x: engine.halfDrawWidth - COUNTER_WIDTH * 3,
+        y: engine.halfDrawHeight + COUNTER_WIDTH * 0,
+        type: "vertical",
+      }),
+      new Wall({
+        x: engine.halfDrawWidth - COUNTER_WIDTH * 3,
+        y: engine.halfDrawHeight - COUNTER_WIDTH * 1,
+        type: "vertical",
+      }),
+      new Wall({
+        x: engine.halfDrawWidth - COUNTER_WIDTH * 3,
+        y: engine.halfDrawHeight - COUNTER_WIDTH * 2,
+        type: "vertical",
+      }),
+      new Wall({
+        x: engine.halfDrawWidth + COUNTER_WIDTH * 2,
+        y: engine.halfDrawHeight + COUNTER_WIDTH * 3,
+        type: "horizontal",
+      }),
+      new Wall({
+        x: engine.halfDrawWidth + COUNTER_WIDTH * 1,
+        y: engine.halfDrawHeight + COUNTER_WIDTH * 3,
+        type: "horizontal",
+      }),
+      new Wall({
+        x: engine.halfDrawWidth + COUNTER_WIDTH * 0,
+        y: engine.halfDrawHeight + COUNTER_WIDTH * 3,
+        type: "horizontal",
+      }),
+      new Wall({
+        x: engine.halfDrawWidth - COUNTER_WIDTH * 1,
+        y: engine.halfDrawHeight + COUNTER_WIDTH * 3,
+        type: "horizontal",
+      }),
+      new Wall({
+        x: engine.halfDrawWidth - COUNTER_WIDTH * 2,
+        y: engine.halfDrawHeight + COUNTER_WIDTH * 3,
+        type: "horizontal",
+      }),
+      new Wall({
+        x: engine.halfDrawWidth + COUNTER_WIDTH * 2,
+        y: engine.halfDrawHeight - COUNTER_WIDTH * 3,
+        type: "horizontal",
+      }),
+      new Wall({
+        x: engine.halfDrawWidth + COUNTER_WIDTH * 1,
+        y: engine.halfDrawHeight - COUNTER_WIDTH * 3,
+        type: "horizontal",
+      }),
+      new Wall({
+        x: engine.halfDrawWidth + COUNTER_WIDTH * 0,
+        y: engine.halfDrawHeight - COUNTER_WIDTH * 3,
+        type: "horizontal",
+      }),
+      new Wall({
+        x: engine.halfDrawWidth - COUNTER_WIDTH * 1,
+        y: engine.halfDrawHeight - COUNTER_WIDTH * 3,
+        type: "horizontal",
+      }),
+      new Wall({
+        x: engine.halfDrawWidth - COUNTER_WIDTH * 2,
+        y: engine.halfDrawHeight - COUNTER_WIDTH * 3,
+        type: "horizontal",
+      }),
+    ];
+
+    walls.forEach((wall) => engine.add(wall));
+  }
+
   private distributeOrders(engine: ex.Engine<any>) {
     const nextOrder = this.ordersToDisribute[0];
     nextOrder.setPosByIndex(this.currentOrders.length);
@@ -127,6 +270,9 @@ export class KitchenBase extends ex.Scene {
     engine.add(nextOrder);
 
     nextOrder.events.on("orderexpired", (event) => {
+      if (!this.isCurrentScene()) {
+        return;
+      }
       const orderToClear = this.currentOrders.findIndex(
         (order) => order === nextOrder
       );
@@ -135,14 +281,21 @@ export class KitchenBase extends ex.Scene {
         return;
       }
 
-      this.player.loseHealth(this.currentOrders[orderToClear].getDamage());
-      this.currentOrders[orderToClear].kill();
-      engine.remove(this.currentOrders[orderToClear]);
+      nextOrder.kill();
+      engine.remove(nextOrder);
       this.currentOrders.splice(orderToClear, 1);
       this.currentOrders.forEach((order, i) => order.setPosByIndex(i));
 
-      if (this.isOrderingClosed && this.currentOrders.length === 0) {
-        this.events.emit("orderscleared");
+      if (nextOrder instanceof AberrantOrder) {
+        this.player.setIsEnabled(engine, false);
+        this.events.emit("loadnextcombatlevel");
+      } else {
+        this.player.loseHealth(nextOrder.getDamage());
+
+        if (this.isOrderingClosed && this.currentOrders.length === 0) {
+          this.player.setIsEnabled(engine, false);
+          this.events.emit("orderscleared");
+        }
       }
     });
 

@@ -8,9 +8,13 @@ export class ProjectileBase extends ex.Actor {
   private decayMS: number;
   private direction: ex.Vector;
   private knockBack: number;
+  private canMultiHitEnemy: boolean;
 
   protected damage: number;
   protected speed: number = 0;
+
+  protected collidedObjects: Set<Wall | EnemyBase | FoodBase> = new Set();
+  protected startingPos: ex.Vector;
 
   constructor({
     x,
@@ -21,6 +25,7 @@ export class ProjectileBase extends ex.Actor {
     knockBack,
     sprite,
     collider,
+    canMultiHitEnemy = false,
   }: {
     x: number;
     y: number;
@@ -30,6 +35,7 @@ export class ProjectileBase extends ex.Actor {
     knockBack: number;
     sprite: ex.Graphic;
     collider: ex.PolygonCollider;
+    canMultiHitEnemy?: boolean;
   }) {
     super({
       x,
@@ -45,10 +51,16 @@ export class ProjectileBase extends ex.Actor {
     this.direction = direction;
     this.damage = damage;
     this.knockBack = knockBack;
+    this.canMultiHitEnemy = canMultiHitEnemy;
+    this.startingPos = ex.vec(x, y);
   }
 
   public getKnockbackForce(): ex.Vector {
     return this.direction.scale(this.knockBack);
+  }
+
+  public getDamage(): number {
+    return this.damage;
   }
 
   onInitialize(engine: ex.Engine<any>): void {
@@ -63,8 +75,58 @@ export class ProjectileBase extends ex.Actor {
     }, this.decayMS);
   }
 
-  public getDamage(): number {
-    return this.damage;
+  onPreUpdate(engine: ex.Engine<any>, delta: number): void {
+    const collisions = Array.from(this.collidedObjects);
+
+    if (!collisions.length) {
+      return;
+    }
+
+    if (
+      this.canMultiHitEnemy &&
+      collisions.some((obj) => obj instanceof EnemyBase)
+    ) {
+      // Handle hitting one or more enemies if piercing enabled
+      collisions.forEach((obj) => {
+        if (!(obj instanceof EnemyBase)) {
+          return;
+        }
+
+        obj.onHit(this.getDamage(), this.getKnockbackForce());
+      });
+    } else {
+      // Handle hitting one of multiple entities
+      let closestNonWall = {
+        object: collisions[0],
+        distance: this.calculateDistanceFromStartinPos(collisions[0]),
+      };
+
+      collisions.forEach((obj) => {
+        if (obj instanceof Wall) {
+          return;
+        }
+
+        const distance = this.calculateDistanceFromStartinPos(obj);
+        if (distance < closestNonWall.distance) {
+          closestNonWall = {
+            object: obj,
+            distance,
+          };
+        }
+      });
+
+      if (!(closestNonWall.object instanceof Wall)) {
+        closestNonWall.object.onHit(this.getDamage(), this.getKnockbackForce());
+      }
+    }
+
+    this.kill();
+  }
+
+  private calculateDistanceFromStartinPos(
+    object: Wall | EnemyBase | FoodBase
+  ): number {
+    return object.pos.distance(this.startingPos);
   }
 
   // TODO: prevent multi collision for knife
@@ -79,7 +141,7 @@ export class ProjectileBase extends ex.Actor {
       other.owner instanceof EnemyBase ||
       (other.owner instanceof FoodBase && other.owner.getHealth() > 0)
     ) {
-      this.kill();
+      this.collidedObjects.add(other.owner);
     }
   }
 }

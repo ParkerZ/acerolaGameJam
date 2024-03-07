@@ -19,8 +19,8 @@ export class ProjectileShotgun extends ProjectileBase {
       y: y + direction.y * 10,
       direction,
       sprite: buckshotSprite,
-      decayMS: 100,
-      damage: 5,
+      decayMS: 125,
+      damage: 8,
       knockBack: 150,
       collider: ex.Shape.Box(buckshotSprite.width, buckshotSprite.height),
     });

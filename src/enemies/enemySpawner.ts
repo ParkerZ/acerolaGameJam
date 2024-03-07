@@ -92,7 +92,6 @@ export class EnemySpawner extends ex.Actor {
       });
     }
 
-    console.log(this.stickyCount);
     this.addEnemy(engine, newEnemy);
 
     newEnemy.events.on("combineenemies", ({ enemiesToCombine }) => {
@@ -171,11 +170,8 @@ export class EnemySpawner extends ex.Actor {
       );
 
       if (enemyToRemove === -1) {
-        console.log("Unknown enemy died");
         return;
       }
-
-      console.log("known enemy died");
 
       this.enemies.splice(enemyToRemove, 1);
     });
@@ -207,12 +203,10 @@ export class EnemySpawner extends ex.Actor {
 
     this.lastTargetPos = this.target.pos.clone();
 
-    // [600]====player====[600]
-    let xMagnitude =
-      xDir * (Math.floor(Math.random() * 800) + engine.halfDrawWidth + 100);
+    // [x]====player====[x]
+    let xMagnitude = xDir * (engine.halfDrawWidth + 100);
 
-    let yMagnitude =
-      yDir * (Math.floor(Math.random() * 600) + engine.halfDrawHeight + 100);
+    let yMagnitude = yDir * (engine.halfDrawHeight + 100);
 
     if (
       (this.target.pos.x + xMagnitude > MAX_X_SPAWN ||
@@ -241,5 +235,13 @@ export class EnemySpawner extends ex.Actor {
       xMagnitude + this.target.pos.x,
       yMagnitude + this.target.pos.y
     );
+  }
+
+  onPreKill(scene: ex.Scene<unknown>): void {
+    this.isEnabled = false;
+    this.enemies.forEach((enemy) => {
+      enemy.kill();
+      scene.engine.remove(enemy);
+    });
   }
 }

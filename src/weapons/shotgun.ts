@@ -6,10 +6,10 @@ export class Shotgun extends WeaponBase {
   constructor() {
     super({
       cooldownMS: 500,
-      movementPenalty: 150,
+      movementPenalty: 125,
       Projectile: ProjectileShotgun,
       numProjectiles: 5,
-      spreadTotalAngleRadians: Math.PI / 6, // ~34 degrees
+      spreadTotalAngleRadians: Math.PI / 5,
     });
   }
 }

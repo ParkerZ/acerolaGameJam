@@ -6,7 +6,7 @@ export class Handgun extends WeaponBase {
   constructor() {
     super({
       cooldownMS: 200,
-      movementPenalty: 100,
+      movementPenalty: 90,
       Projectile: ProjectileHandgun,
     });
   }

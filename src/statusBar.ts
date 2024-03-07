@@ -1,23 +1,26 @@
 import * as ex from "excalibur";
 
-type Size = "sm" | "md" | "lg";
+type Size = "sm" | "md" | "lg" | "thin";
 
 const heightMap: Record<Size, number> = {
   sm: 8,
   md: 10,
   lg: 25,
+  thin: 10,
 };
 
 const widthMap: Record<Size, number> = {
   sm: 30,
   md: 100,
   lg: 400,
+  thin: 300,
 };
 
 const outlineWeightMap: Record<Size, number> = {
   sm: 1,
   md: 1,
   lg: 5,
+  thin: 1,
 };
 
 export class StatusBar extends ex.ScreenElement {
@@ -31,12 +34,14 @@ export class StatusBar extends ex.ScreenElement {
   constructor({
     x,
     y,
+    z = 1,
     maxVal,
     size = "md",
     color = ex.Color.Red,
   }: {
     x: number;
     y: number;
+    z?: number;
     maxVal: number;
     size?: Size;
     color?: ex.Color;
@@ -44,7 +49,7 @@ export class StatusBar extends ex.ScreenElement {
     super({
       x,
       y,
-      z: 3,
+      z,
       anchor: ex.Vector.Half,
     });
 

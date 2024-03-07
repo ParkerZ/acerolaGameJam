@@ -7,7 +7,7 @@ import { Knife } from "./weapons/knife";
 import { Shotgun } from "./weapons/shotgun";
 import { Sniper } from "./weapons/sniper";
 
-export type FoodType = "food1" | "food2" | "food3";
+export type FoodType = "food1" | "food2" | "food3" | "invalid";
 export type WeaponType =
   | typeof Handgun
   | typeof Knife
@@ -26,6 +26,8 @@ export interface DeliveryEvent extends Event {
 export interface OrderExpiredEvent extends Event {}
 
 export interface OrdersClearedEvent extends Event {}
+
+export interface NextCombatLevelEvent extends Event {}
 
 export interface BuyWeaponEvent extends Event {
   cost: number;

@@ -4,8 +4,8 @@ import { FoodBase } from "./foodBase";
 import { FoodType } from "../../types";
 
 export class Food1 extends FoodBase {
-  sprite = mainSpriteSheet.getSprite(23, 8)?.clone() as ex.Sprite;
-  choppedSprite = mainSpriteSheet.getSprite(24, 8)?.clone() as ex.Sprite;
+  sprite = mainSpriteSheet.getSprite(25, 5)?.clone() as ex.Sprite;
+  choppedSprite = mainSpriteSheet.getSprite(22, 9)?.clone() as ex.Sprite;
   maxHealth = 25;
   foodType: FoodType = "food1";
 

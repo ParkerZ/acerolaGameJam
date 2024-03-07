@@ -1,9 +1,9 @@
 import * as ex from "excalibur";
 import { ProjectileBase } from "./projectileBase";
-import { bulletSprite } from "../../resources";
+import { buckshotSprite } from "../../resources";
 
-export class ProjectileHandgun extends ProjectileBase {
-  speed = 1250;
+export class ProjectileSubMachineGun extends ProjectileBase {
+  speed = 1500;
 
   constructor({
     x,
@@ -18,11 +18,11 @@ export class ProjectileHandgun extends ProjectileBase {
       x: x + direction.x * 10,
       y: y + direction.y * 10,
       direction,
-      sprite: bulletSprite,
-      decayMS: 250,
-      damage: 18,
-      knockBack: 250,
-      collider: ex.Shape.Box(bulletSprite.width, bulletSprite.height),
+      sprite: buckshotSprite,
+      decayMS: 150,
+      damage: 4,
+      knockBack: 120,
+      collider: ex.Shape.Box(buckshotSprite.width, buckshotSprite.height),
     });
   }
 }

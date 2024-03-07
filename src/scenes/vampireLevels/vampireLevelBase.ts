@@ -5,8 +5,7 @@ import { NextLevelEvent } from "../../types";
 import { PlayerCameraMount } from "../../playerCameraMount";
 import { COUNTER_WIDTH } from "../../constants";
 import { Wall } from "../../wall";
-import { EnemyBase } from "../../enemies/enemyBase";
-import { Enemy1 } from "../../enemies/enemy1";
+import { StatusBar } from "../../statusBar";
 import { EnemySpawner } from "../../enemies/enemySpawner";
 
 export class VampireLevelBase extends ex.Scene {
@@ -15,16 +14,47 @@ export class VampireLevelBase extends ex.Scene {
   >();
 
   protected player: Player;
+  protected spawner: EnemySpawner;
+  protected timerMs: number;
+  protected timerTickMs: number = 100;
+  protected timerBar: StatusBar;
 
-  constructor({ player }: { player: Player }) {
+  constructor({
+    player,
+    spawner,
+    timerMs,
+  }: {
+    player: Player;
+    spawner: EnemySpawner;
+    timerMs: number;
+  }) {
     super();
     this.player = player;
+    this.timerMs = timerMs;
+    this.spawner = spawner;
+    this.timerBar = new StatusBar({
+      x: 0,
+      y: 0,
+      z: 2,
+      maxVal: timerMs,
+      size: "thin",
+      color: ex.Color.ExcaliburBlue,
+    });
   }
 
   onInitialize(engine: ex.Engine<any>): void {
+    this.timerBar.setPos(
+      ex.vec(engine.halfDrawWidth, (engine.halfDrawHeight * 6) / 100)
+    );
+    engine.add(this.timerBar);
+
+    setTimeout(() => {
+      this.initializeTimerCountdown(engine);
+    }, 500);
+
     const cameraMount = new PlayerCameraMount(this.player);
 
-    this.player.setIsEnabled(true);
+    this.player.setIsEnabled(engine, true);
 
     const tileSprite = invertSpriteSheet.getSprite(11, 0)?.clone() as ex.Sprite;
 
@@ -107,6 +137,32 @@ export class VampireLevelBase extends ex.Scene {
 
     this.camera.pos = cameraMount.pos;
     this.camera.clearAllStrategies();
-    this.camera.strategy.elasticToActor(cameraMount, 0.045, 0.1);
+    this.camera.strategy.elasticToActor(cameraMount, 0.05, 0.1);
+
+    engine.add(this.spawner);
+  }
+
+  private initializeTimerCountdown(engine: ex.Engine<any>) {
+    if (!this.isCurrentScene()) {
+      return;
+    }
+
+    if (this.timerMs <= 0) {
+      this.cleanupSpawner(engine);
+      this.events.emit("loadnextlevel");
+      return;
+    }
+
+    this.timerMs -= this.timerTickMs;
+    this.timerBar.setCurrVal(Math.max(this.timerMs, 0));
+
+    setTimeout(() => {
+      this.initializeTimerCountdown(engine);
+    }, this.timerTickMs);
+  }
+
+  protected cleanupSpawner(engine: ex.Engine<any>): void {
+    this.spawner.kill();
+    engine.remove(this.spawner);
   }
 }

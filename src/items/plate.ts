@@ -17,8 +17,14 @@ export class Plate extends HoldableItem {
     return this.contents;
   }
 
-  private updateGraphics(newSprite: ex.Graphic) {
-    this.contentSprites.push(newSprite);
+  onInitialize(engine: ex.Engine<any>): void {
+    super.onInitialize(engine);
+    if (this.contentSprites.length) {
+      this.updateGraphics();
+    }
+  }
+
+  private updateGraphics() {
     const members = [
       {
         graphic: this.sprite,
@@ -40,7 +46,8 @@ export class Plate extends HoldableItem {
         this.contents.add(item.getFoodType());
         const itemSprite = item.getSprite();
         if (itemSprite) {
-          this.updateGraphics(itemSprite);
+          this.contentSprites.push(itemSprite);
+          this.updateGraphics();
         }
         item.kill();
         return true;
