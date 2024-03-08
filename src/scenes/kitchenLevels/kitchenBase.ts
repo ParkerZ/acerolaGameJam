@@ -2,7 +2,7 @@ import * as ex from "excalibur";
 import { DeliveryStation } from "../../counters/deliveryStation";
 import { Order } from "../../order";
 import { Player } from "../../player";
-import { mainSpriteSheet } from "../../resources";
+import { kitchenBgSprite, kitchenWallsSprite } from "../../resources";
 import { CounterBase } from "../../counters/counterBase";
 import { COUNTER_WIDTH, ORDER_DELAY_MS } from "../../constants";
 import { NextCombatLevelEvent, OrdersClearedEvent } from "../../types";
@@ -21,6 +21,8 @@ export class KitchenBase extends ex.Scene {
   private currentOrders: Order[] = [];
   private player: Player;
   private isOrderingClosed: boolean = false;
+  private walls: Wall[] = [];
+  private floors: ex.Actor[] = [];
 
   protected ordersToDisribute: Order[] = [];
   protected counters: CounterBase[] = [];
@@ -34,28 +36,6 @@ export class KitchenBase extends ex.Scene {
 
   onInitialize(engine: ex.Engine<any>): void {
     this.player.setIsEnabled(engine, true);
-
-    for (let x = 0; x < 13; x++) {
-      for (let y = 0; y < 13; y++) {
-        const tileSprite = mainSpriteSheet
-          .getSprite(10, 0)
-          ?.clone() as ex.Sprite;
-
-        const floorTile = new ex.ScreenElement({
-          x: -32,
-          y: -32,
-          z: -2,
-        });
-
-        tileSprite.rotation = selectRandom([Math.PI / 2, (Math.PI * 3) / 2]);
-
-        floorTile.graphics.show(tileSprite, {
-          offset: ex.vec(x * 64, y * 64),
-        });
-
-        engine.add(floorTile);
-      }
-    }
 
     this.addWalls(engine);
 
@@ -137,130 +117,60 @@ export class KitchenBase extends ex.Scene {
   }
 
   private addWalls(engine: ex.Engine<any>) {
-    const walls = [
-      new Wall({
-        x: engine.halfDrawWidth - COUNTER_WIDTH * 3,
-        y: engine.halfDrawHeight - COUNTER_WIDTH * 3,
-        type: "cornerNW",
-      }),
-      new Wall({
-        x: engine.halfDrawWidth + COUNTER_WIDTH * 3,
-        y: engine.halfDrawHeight - COUNTER_WIDTH * 3,
-        type: "cornerNE",
-      }),
-      new Wall({
-        x: engine.halfDrawWidth - COUNTER_WIDTH * 3,
-        y: engine.halfDrawHeight + COUNTER_WIDTH * 3,
-        type: "cornerSW",
-      }),
-      new Wall({
-        x: engine.halfDrawWidth + COUNTER_WIDTH * 3,
-        y: engine.halfDrawHeight + COUNTER_WIDTH * 3,
-        type: "cornerSE",
-      }),
-      new Wall({
-        x: engine.halfDrawWidth + COUNTER_WIDTH * 3,
-        y: engine.halfDrawHeight + COUNTER_WIDTH * 2,
-        type: "vertical",
-      }),
-      new Wall({
-        x: engine.halfDrawWidth + COUNTER_WIDTH * 3,
-        y: engine.halfDrawHeight + COUNTER_WIDTH * 1,
-        type: "vertical",
-      }),
-      new Wall({
-        x: engine.halfDrawWidth + COUNTER_WIDTH * 3,
-        y: engine.halfDrawHeight + COUNTER_WIDTH * 0,
-        type: "vertical",
-      }),
-      new Wall({
-        x: engine.halfDrawWidth + COUNTER_WIDTH * 3,
-        y: engine.halfDrawHeight - COUNTER_WIDTH * 1,
-        type: "vertical",
-      }),
-      new Wall({
-        x: engine.halfDrawWidth + COUNTER_WIDTH * 3,
-        y: engine.halfDrawHeight - COUNTER_WIDTH * 2,
-        type: "vertical",
-      }),
-      new Wall({
-        x: engine.halfDrawWidth - COUNTER_WIDTH * 3,
-        y: engine.halfDrawHeight + COUNTER_WIDTH * 2,
-        type: "vertical",
-      }),
-      new Wall({
-        x: engine.halfDrawWidth - COUNTER_WIDTH * 3,
-        y: engine.halfDrawHeight + COUNTER_WIDTH * 1,
-        type: "vertical",
-      }),
-      new Wall({
-        x: engine.halfDrawWidth - COUNTER_WIDTH * 3,
-        y: engine.halfDrawHeight + COUNTER_WIDTH * 0,
-        type: "vertical",
-      }),
-      new Wall({
-        x: engine.halfDrawWidth - COUNTER_WIDTH * 3,
-        y: engine.halfDrawHeight - COUNTER_WIDTH * 1,
-        type: "vertical",
-      }),
-      new Wall({
-        x: engine.halfDrawWidth - COUNTER_WIDTH * 3,
-        y: engine.halfDrawHeight - COUNTER_WIDTH * 2,
-        type: "vertical",
-      }),
-      new Wall({
-        x: engine.halfDrawWidth + COUNTER_WIDTH * 2,
-        y: engine.halfDrawHeight + COUNTER_WIDTH * 3,
-        type: "horizontal",
-      }),
-      new Wall({
-        x: engine.halfDrawWidth + COUNTER_WIDTH * 1,
-        y: engine.halfDrawHeight + COUNTER_WIDTH * 3,
-        type: "horizontal",
-      }),
-      new Wall({
-        x: engine.halfDrawWidth + COUNTER_WIDTH * 0,
-        y: engine.halfDrawHeight + COUNTER_WIDTH * 3,
-        type: "horizontal",
-      }),
-      new Wall({
-        x: engine.halfDrawWidth - COUNTER_WIDTH * 1,
-        y: engine.halfDrawHeight + COUNTER_WIDTH * 3,
-        type: "horizontal",
-      }),
-      new Wall({
-        x: engine.halfDrawWidth - COUNTER_WIDTH * 2,
-        y: engine.halfDrawHeight + COUNTER_WIDTH * 3,
-        type: "horizontal",
-      }),
-      new Wall({
-        x: engine.halfDrawWidth + COUNTER_WIDTH * 2,
-        y: engine.halfDrawHeight - COUNTER_WIDTH * 3,
-        type: "horizontal",
-      }),
-      new Wall({
-        x: engine.halfDrawWidth + COUNTER_WIDTH * 1,
-        y: engine.halfDrawHeight - COUNTER_WIDTH * 3,
-        type: "horizontal",
-      }),
-      new Wall({
-        x: engine.halfDrawWidth + COUNTER_WIDTH * 0,
-        y: engine.halfDrawHeight - COUNTER_WIDTH * 3,
-        type: "horizontal",
-      }),
-      new Wall({
-        x: engine.halfDrawWidth - COUNTER_WIDTH * 1,
-        y: engine.halfDrawHeight - COUNTER_WIDTH * 3,
-        type: "horizontal",
-      }),
-      new Wall({
-        x: engine.halfDrawWidth - COUNTER_WIDTH * 2,
-        y: engine.halfDrawHeight - COUNTER_WIDTH * 3,
-        type: "horizontal",
-      }),
-    ];
+    const bg = new ex.Actor({
+      x: 0,
+      y: 0,
+      z: -1,
+      anchor: ex.Vector.Zero,
+    });
+    bg.graphics.use(kitchenBgSprite);
+    engine.add(bg);
 
-    walls.forEach((wall) => engine.add(wall));
+    const wallCollider = new ex.CompositeCollider([
+      ex.Shape.Box(
+        448,
+        64,
+        ex.Vector.Half,
+        ex.vec(engine.halfDrawWidth, engine.halfDrawHeight - 64 * 3)
+      ),
+      ex.Shape.Box(
+        448,
+        64,
+        ex.Vector.Half,
+        ex.vec(engine.halfDrawWidth, engine.halfDrawHeight + 64 * 3)
+      ),
+      ex.Shape.Box(
+        64,
+        320,
+        ex.Vector.Half,
+        ex.vec(engine.halfDrawWidth + 64 * 3, engine.halfDrawHeight)
+      ),
+      ex.Shape.Box(
+        64,
+        320,
+        ex.Vector.Half,
+        ex.vec(engine.halfDrawWidth - 64 * 3, engine.halfDrawHeight)
+      ),
+    ]);
+
+    const walls = new ex.Actor({
+      x: 0,
+      y: 0,
+      z: 1,
+      anchor: ex.Vector.Zero,
+      collider: wallCollider,
+      collisionType: ex.CollisionType.Fixed,
+    });
+
+    walls.graphics.use(kitchenWallsSprite);
+    engine.add(walls);
+
+    this.events.on("deactivate", () => {
+      bg.kill();
+      walls.kill();
+      engine.remove(bg);
+      engine.remove(walls);
+    });
   }
 
   private distributeOrders(engine: ex.Engine<any>) {
@@ -329,5 +239,20 @@ export class KitchenBase extends ex.Scene {
 
     this.deliveryStation.kill();
     context.engine.remove(this.deliveryStation);
+
+    this.walls.forEach((wall) => {
+      wall.kill();
+      context.engine.remove(wall);
+    });
+
+    this.floors.forEach((floor) => {
+      floor.kill();
+      context.engine.remove(floor);
+    });
+
+    this.counters.forEach((counter) => {
+      counter.kill();
+      context.engine.remove(counter);
+    });
   }
 }

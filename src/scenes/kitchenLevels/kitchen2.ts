@@ -56,7 +56,7 @@ export class Kitchen2 extends KitchenBase {
         Food: Food3,
       }),
       new Trash({
-        x: engine.halfCanvasWidth + COUNTER_WIDTH * 1,
+        x: engine.halfDrawWidth + COUNTER_WIDTH * 1,
         y: engine.halfDrawHeight + COUNTER_WIDTH * 2,
       }),
     ];

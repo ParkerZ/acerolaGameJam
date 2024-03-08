@@ -6,7 +6,7 @@ import { mainSpriteSheet } from "../resources";
 import { selectRandom } from "../util";
 
 export const SPEED = 150;
-export const DAMAGE = 15;
+export const DAMAGE = 10; // 15
 export const ATTACK_RANGE = 41;
 export const ATTACK_FORCE = 400;
 

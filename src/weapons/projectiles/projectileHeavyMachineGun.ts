@@ -20,9 +20,10 @@ export class ProjectileHeavyMachineGun extends ProjectileBase {
       direction,
       sprite: bulletSprite,
       decayMS: 250,
-      damage: 8,
+      damage: 9,
       knockBack: 350,
       collider: ex.Shape.Box(bulletSprite.width, bulletSprite.height),
+      canMultiHitEnemy: true,
     });
   }
 }

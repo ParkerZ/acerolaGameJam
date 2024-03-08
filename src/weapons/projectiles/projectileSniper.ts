@@ -20,7 +20,7 @@ export class ProjectileSniper extends ProjectileBase {
       direction,
       sprite: bulletSprite,
       decayMS: 500,
-      damage: 50,
+      damage: 500,
       knockBack: 1000,
       collider: ex.Shape.Box(bulletSprite.width, bulletSprite.height),
     });

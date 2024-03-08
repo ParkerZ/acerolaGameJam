@@ -56,11 +56,11 @@ export class Kitchen5 extends KitchenBase {
         Food: Food3,
       }),
       new Counter({
-        x: engine.halfCanvasWidth - COUNTER_WIDTH * 2,
+        x: engine.halfDrawWidth - COUNTER_WIDTH * 2,
         y: engine.halfDrawHeight + COUNTER_WIDTH * 2,
       }),
       new Counter({
-        x: engine.halfCanvasWidth + COUNTER_WIDTH * 2,
+        x: engine.halfDrawWidth + COUNTER_WIDTH * 2,
         y: engine.halfDrawHeight + COUNTER_WIDTH * 2,
       }),
     ];

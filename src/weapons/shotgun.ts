@@ -8,7 +8,7 @@ export class Shotgun extends WeaponBase {
       cooldownMS: 500,
       movementPenalty: 125,
       Projectile: ProjectileShotgun,
-      numProjectiles: 5,
+      numProjectiles: 6,
       spreadTotalAngleRadians: Math.PI / 5,
     });
   }

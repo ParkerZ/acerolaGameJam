@@ -59,7 +59,7 @@ export class Kitchen1 extends KitchenBase {
         y: engine.halfDrawHeight + COUNTER_WIDTH * 1,
       }),
       new Trash({
-        x: engine.halfCanvasWidth + COUNTER_WIDTH * 2,
+        x: engine.halfDrawWidth + COUNTER_WIDTH * 2,
         y: engine.halfDrawHeight + COUNTER_WIDTH * 2,
       }),
     ];

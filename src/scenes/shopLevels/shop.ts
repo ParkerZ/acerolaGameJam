@@ -36,34 +36,7 @@ export class Shop extends ex.Scene {
   onInitialize(engine: ex.Engine<any>): void {
     this.player.setIsEnabled(engine, false);
     this.player.healToFull();
-
-    for (let x = 0; x < 13; x++) {
-      for (let y = 0; y < 13; y++) {
-        const tileSprite = selectRandom([
-          mainSpriteSheet.getSprite(18, 0)?.clone() as ex.Sprite,
-          mainSpriteSheet.getSprite(19, 0)?.clone() as ex.Sprite,
-        ]);
-
-        const floorTile = new ex.ScreenElement({
-          x: -32,
-          y: -32,
-          z: -2,
-        });
-
-        tileSprite.rotation = selectRandom([
-          0,
-          Math.PI / 2,
-          Math.PI,
-          (Math.PI * 3) / 2,
-        ]);
-
-        floorTile.graphics.show(tileSprite, {
-          offset: ex.vec(x * 64, y * 64),
-        });
-
-        engine.add(floorTile);
-      }
-    }
+    this.player.showCoinHud(engine);
 
     const weaponOptions = new Set([
       ShopHandgun,

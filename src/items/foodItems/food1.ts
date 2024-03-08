@@ -2,9 +2,10 @@ import * as ex from "excalibur";
 import { mainSpriteSheet } from "../../resources";
 import { FoodBase } from "./foodBase";
 import { FoodType } from "../../types";
+import { FOOD_TYPE_SPRITE_MAP } from "../../constants";
 
 export class Food1 extends FoodBase {
-  sprite = mainSpriteSheet.getSprite(25, 5)?.clone() as ex.Sprite;
+  sprite = FOOD_TYPE_SPRITE_MAP["food1"];
   choppedSprite = mainSpriteSheet.getSprite(22, 9)?.clone() as ex.Sprite;
   maxHealth = 25;
   foodType: FoodType = "food1";

@@ -1,8 +1,14 @@
 import * as ex from "excalibur";
 import { FoodType, OrderExpiredEvent } from "./types";
-import { ORDER_DAMAGE, ORDER_TIMEOUT_MS } from "./constants";
+import {
+  FOOD_TYPE_SPRITE_MAP,
+  ORDER_DAMAGE,
+  ORDER_TIMEOUT_MS,
+} from "./constants";
 import { ActorEvents } from "excalibur/build/dist/Actor";
 import { StatusBar } from "./statusBar";
+import { mainSpriteSheet } from "./resources";
+import { shuffleArray } from "./util";
 
 export class Order extends ex.ScreenElement {
   public events = new ex.EventEmitter<
@@ -72,26 +78,23 @@ export class Order extends ex.ScreenElement {
       color: ex.Color.White,
     });
 
-    const text = new ex.Text({
-      text: Array.from(this.dishIngredients).join(",\n"),
-      color: ex.Color.Black,
-      font: new ex.Font({ size: 30 }),
+    const members: ex.GraphicsGrouping[] = [
+      { graphic: box, offset: ex.Vector.Zero },
+    ];
+
+    shuffleArray(Array.from(this.dishIngredients)).forEach((foodType, i) => {
+      const graphic = FOOD_TYPE_SPRITE_MAP[foodType];
+      members.push({
+        graphic,
+        offset: ex.vec(
+          64 - this.dishIngredients.size * 32 + graphic.width * i,
+          box.height / 4
+        ),
+      });
     });
 
     const graphic = new ex.GraphicsGroup({
-      members: [
-        {
-          graphic: box,
-          offset: ex.Vector.Zero,
-        },
-        {
-          graphic: text,
-          offset: ex.vec(
-            (box.width - text.width) / 2,
-            (box.height - text.height) / 2
-          ),
-        },
-      ],
+      members,
     });
 
     this.graphics.use(graphic);
@@ -100,6 +103,7 @@ export class Order extends ex.ScreenElement {
   onInitialize(engine: ex.Engine<any>): void {
     engine.add(this.statusBar);
     this.startCountdown();
+    this.updateGraphics();
   }
 
   private startCountdown() {
@@ -112,8 +116,6 @@ export class Order extends ex.ScreenElement {
       return;
     }
 
-    this.updateGraphics();
-
     this.waitTimeMs -= 100;
     this.statusBar.setCurrVal(Math.max(this.waitTimeMs, 0));
 
@@ -122,5 +124,6 @@ export class Order extends ex.ScreenElement {
 
   onPreKill(scene: ex.Scene<unknown>): void {
     this.statusBar.kill();
+    scene.engine.remove(this.statusBar);
   }
 }

@@ -76,7 +76,7 @@ export class WeaponBase extends ex.Actor {
 
     setTimeout(() => {
       this.nearCooldownEnd = true;
-    }, (this.cooldownMS * 3) / 5);
+    }, (this.cooldownMS * 3) / 4);
   }
 
   public getIsAttacking(): boolean {

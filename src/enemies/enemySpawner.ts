@@ -205,30 +205,44 @@ export class EnemySpawner extends ex.Actor {
 
     // [x]====player====[x]
     let xMagnitude = xDir * (engine.halfDrawWidth + 100);
-
     let yMagnitude = yDir * (engine.halfDrawHeight + 100);
 
-    if (
-      (this.target.pos.x + xMagnitude > MAX_X_SPAWN ||
-        this.target.pos.x + xMagnitude < MIN_X_SPAWN) &&
-      (this.target.pos.y + yMagnitude > MAX_Y_SPAWN ||
-        this.target.pos.y + yMagnitude < MIN_Y_SPAWN)
-    ) {
+    const isXTooLarge = (x: number) =>
+      this.target.pos.x + x > MAX_X_SPAWN ||
+      this.target.pos.x + x < MIN_X_SPAWN;
+
+    const isYTooLarge = (y: number) =>
+      this.target.pos.y + y > MAX_Y_SPAWN ||
+      this.target.pos.y + y < MIN_Y_SPAWN;
+
+    if (isXTooLarge(xMagnitude) && isYTooLarge(yMagnitude)) {
       const randomBool = !Math.floor(Math.random() * 2);
       xMagnitude = randomBool ? 0 : -1 * xMagnitude;
       yMagnitude = !randomBool ? 0 : -1 * yMagnitude;
     } else {
-      xMagnitude =
-        this.target.pos.x + xMagnitude > MAX_X_SPAWN ||
-        this.target.pos.x + xMagnitude < MIN_X_SPAWN
-          ? 0
-          : xMagnitude;
+      if (isXTooLarge(xMagnitude)) {
+        xMagnitude = 0;
+      }
 
-      yMagnitude =
-        this.target.pos.y + yMagnitude > MAX_Y_SPAWN ||
-        this.target.pos.y + yMagnitude < MIN_Y_SPAWN
-          ? 0
-          : yMagnitude;
+      if (isYTooLarge(yMagnitude)) {
+        yMagnitude = 0;
+      }
+    }
+
+    // Randomly set x or y to zero sometimes
+    const randomNum = Math.floor(Math.random() * 6);
+    if (
+      randomNum === 0 &&
+      !isXTooLarge(xMagnitude) &&
+      !!isXTooLarge(-xMagnitude)
+    ) {
+      xMagnitude = 0;
+    } else if (
+      randomNum === 1 &&
+      !isYTooLarge(yMagnitude) &&
+      !!isYTooLarge(-yMagnitude)
+    ) {
+      yMagnitude = 0;
     }
 
     return ex.vec(

@@ -14,7 +14,7 @@ export class VampireLevel3 extends VampireLevelBase {
       spawner: new EnemySpawner({
         Enemy: Enemy1,
         target: player,
-        spawnRateMs: 1075,
+        spawnRateMs: 1100,
         spawnCap: 15,
       }),
     });
@@ -22,7 +22,7 @@ export class VampireLevel3 extends VampireLevelBase {
     this.superSecretExtraSpanwer = new EnemySpawner({
       Enemy: Enemy1,
       target: this.player,
-      spawnRateMs: 11025,
+      spawnRateMs: 1100,
       spawnCap: 15,
     });
   }
@@ -30,7 +30,9 @@ export class VampireLevel3 extends VampireLevelBase {
   onInitialize(engine: ex.Engine<any>): void {
     super.onInitialize(engine);
 
-    engine.add(this.superSecretExtraSpanwer);
+    setTimeout(() => {
+      engine.add(this.superSecretExtraSpanwer);
+    }, 550);
   }
 
   protected cleanupSpawner(engine: ex.Engine<any>): void {

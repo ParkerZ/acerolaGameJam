@@ -10,6 +10,7 @@ export abstract class CounterBase extends ex.Actor {
     super({
       x,
       y,
+      z: 2,
       collisionType: ex.CollisionType.Passive,
       collisionGroup: ex.CollisionGroupManager.groupByName("counter"),
       collider: ex.Shape.Capsule(72, 72),

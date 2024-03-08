@@ -1,24 +1,17 @@
 import * as ex from "excalibur";
 import { mainSpriteSheet } from "./resources";
 import { CounterBase } from "./counters/counterBase";
-import { Knife } from "./weapons/knife";
 import { WeaponBase } from "./weapons/weaponBase";
 import { HoldableItem } from "./items/holdableItem";
 import { Plate } from "./items/plate";
 import { StatusBar } from "./statusBar";
 import { WeaponType } from "./types";
-import { selectRandom } from "./util";
-import { Handgun } from "./weapons/handgun";
 import { Shotgun } from "./weapons/shotgun";
-import { Sniper } from "./weapons/sniper";
-import { SubMachineGun } from "./weapons/subMachineGun";
 import { FoodBase } from "./items/foodItems/foodBase";
 import { PlateRack } from "./counters/plateRack";
-import { HeavyMachineGun } from "./weapons/heavyMachineGun";
-import { Raygun } from "./weapons/raygun";
+import { CoinHud } from "./cointHud";
 
 export class Player extends ex.Actor {
-  // TODO: coin counter
   private isEnabled = true;
   private velocity = 350;
   private targetCounter: CounterBase | undefined;
@@ -32,6 +25,7 @@ export class Player extends ex.Actor {
   private maxHealth: number = 100;
   private health: number = 100;
   private healthBar: StatusBar;
+  private coinHud: CoinHud;
 
   private damageCooldownMap: Record<string, number> = {};
   private damageCooldownMs = 500;
@@ -50,22 +44,17 @@ export class Player extends ex.Actor {
       collider: ex.Shape.Capsule(48, 48),
     });
 
-    const Weapon = selectRandom([
-      Knife,
-      Handgun,
-      Shotgun,
-      Sniper,
-      SubMachineGun,
-      HeavyMachineGun,
-      Raygun,
-    ]);
-    this.weapon = new Knife();
+    this.weapon = new Shotgun();
     this.healthBar = new StatusBar({
       x: 0,
       y: 0,
       z: 2,
       maxVal: this.maxHealth,
       size: "lg",
+    });
+    this.coinHud = new CoinHud({
+      x: 0,
+      y: 0,
     });
 
     this.sprite = mainSpriteSheet.getSprite(25, 4)?.clone() as ex.Sprite;
@@ -92,17 +81,24 @@ export class Player extends ex.Actor {
 
   public addCoins(val: number) {
     this.numCoins += val;
-    console.log("Player coins", this.numCoins);
+    this.coinHud.setCoins(this.numCoins);
   }
 
   public loseCoins(val: number) {
     this.numCoins -= val;
-    console.log("Player coins", this.numCoins);
+    this.coinHud.setCoins(this.numCoins);
   }
 
   public loseHealth(val: number) {
     this.health -= val;
     this.healthBar.setCurrVal(Math.max(this.health, 0));
+
+    if (this.health < 0) {
+      // TODO: LOSE
+      setTimeout(() => {
+        alert("YOU LOSE");
+      }, 500);
+    }
   }
 
   public healToFull() {
@@ -133,6 +129,12 @@ export class Player extends ex.Actor {
     }, this.damageCooldownMs);
   }
 
+  public showCoinHud(engine: ex.Engine<any>) {
+    engine.remove(this.coinHud);
+    this.coinHud.setPos(ex.vec((engine.drawWidth * 88.9) / 100, 10));
+    engine.add(this.coinHud);
+  }
+
   onInitialize(engine: ex.Engine<any>): void {
     this.graphics.use(this.sprite);
 
@@ -154,6 +156,8 @@ export class Player extends ex.Actor {
       ex.vec(engine.halfDrawWidth, (engine.drawHeight * 94) / 100)
     );
     engine.add(this.healthBar);
+
+    this.showCoinHud(engine);
   }
 
   private onEnable(engine: ex.Engine<any>) {

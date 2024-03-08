@@ -52,7 +52,7 @@ export class Kitchen4 extends KitchenBase {
         Food: Food3,
       }),
       new Trash({
-        x: engine.halfCanvasWidth + COUNTER_WIDTH * 2,
+        x: engine.halfDrawWidth + COUNTER_WIDTH * 2,
         y: engine.halfDrawHeight - COUNTER_WIDTH * 2,
       }),
     ];

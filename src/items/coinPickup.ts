@@ -21,6 +21,14 @@ export class CoinPickup extends ex.Actor {
     setTimeout(() => {
       this.on("precollision", (evt) => this.precollision(engine, evt));
     }, 500);
+
+    setTimeout(() => {
+      if (!this.isPickedUp) {
+        this.isPickedUp = true;
+        this.kill();
+        engine.remove(this);
+      }
+    }, 10000);
   }
 
   private precollision(

@@ -20,9 +20,10 @@ export class ProjectileSubMachineGun extends ProjectileBase {
       direction,
       sprite: buckshotSprite,
       decayMS: 150,
-      damage: 4,
-      knockBack: 120,
+      damage: 5,
+      knockBack: 140,
       collider: ex.Shape.Box(buckshotSprite.width, buckshotSprite.height),
+      canMultiHitEnemy: true,
     });
   }
 }

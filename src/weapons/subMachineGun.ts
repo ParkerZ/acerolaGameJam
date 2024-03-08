@@ -5,7 +5,7 @@ import { ProjectileSubMachineGun } from "./projectiles/projectileSubMachineGun";
 export class SubMachineGun extends WeaponBase {
   constructor() {
     super({
-      cooldownMS: 50,
+      cooldownMS: 40,
       movementPenalty: 150,
       Projectile: ProjectileSubMachineGun,
     });
