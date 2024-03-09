@@ -11,6 +11,10 @@ import { Kitchen4 } from "./scenes/kitchenLevels/kitchen4";
 import { Kitchen5 } from "./scenes/kitchenLevels/kitchen5";
 import { VampireLevel3 } from "./scenes/vampireLevels/vampireLevel3";
 import { VampireLevel2 } from "./scenes/vampireLevels/vampireLevel2";
+import { ShopHeavyMachineGun } from "./scenes/shopLevels/shopItems/shopHeavyMachineGun";
+import { ShopShotgun } from "./scenes/shopLevels/shopItems/shopShotgun";
+import { ShopSubMachineGun } from "./scenes/shopLevels/shopItems/shopSubMachineGun";
+import { ShopSniper } from "./scenes/shopLevels/shopItems/shopSniper";
 
 const buildSceneWithTransitions = (scene: ex.Scene) => ({
   scene,
@@ -52,16 +56,25 @@ ex.CollisionGroupManager.create(
 const player = new Player({ x: 0, y: 0 });
 
 const kitchen1 = new Kitchen1({ player });
-const shop1 = new Shop({ player, seedWeapons: [ShopHandgun] });
+const shop1 = new Shop({
+  player,
+  seedWeapons: [ShopHandgun, ShopHeavyMachineGun],
+});
 const kitchen2 = new Kitchen2({ player });
 const vampireLevel1 = new VampireLevel1({ player });
-const shop2 = new Shop({ player });
+const shop2 = new Shop({ player, seedWeapons: [ShopHandgun, ShopShotgun] });
 const kitchen3 = new Kitchen3({ player });
-const vampireLevel2 = new VampireLevel2({ player }); // TODO: vampire2
-const shop3 = new Shop({ player });
+const vampireLevel2 = new VampireLevel2({ player });
+const shop3 = new Shop({
+  player,
+  seedWeapons: [ShopSubMachineGun, ShopSniper],
+});
 const kitchen4 = new Kitchen4({ player });
-const vampireLevel3 = new VampireLevel3({ player }); // TODO: vampire3
-const shop4 = new Shop({ player });
+const vampireLevel3 = new VampireLevel3({ player });
+const shop4 = new Shop({
+  player,
+  seedWeapons: [ShopHeavyMachineGun, ShopSubMachineGun, ShopSniper],
+});
 const kitchen5 = new Kitchen5({ player });
 
 engine.add("kitchen1", buildSceneWithTransitions(kitchen1));
@@ -79,46 +92,119 @@ engine.add("kitchen5", buildSceneWithTransitions(kitchen5));
 
 kitchen1.events.on("orderscleared", () => {
   engine.goto("shop1");
+  engine.clock.schedule(() => {
+    engine.removeScene(kitchen1);
+    kitchen1.clear();
+
+    player.showCoinHud(engine);
+  }, 1500);
 });
 
 shop1.events.on("loadnextlevel", () => {
   engine.goto("kitchen2");
+  engine.clock.schedule(() => {
+    engine.removeScene(shop1);
+    shop1.clear();
+
+    engine.add(player);
+    player.setIsEnabled(engine, true);
+  }, 1500);
 });
 
 kitchen2.events.on("loadnextcombatlevel", () => {
   engine.goto("vampire1");
+  engine.clock.schedule(() => {
+    engine.remove(kitchen2);
+    kitchen2.clear();
+
+    engine.add(player);
+    player.setIsEnabled(engine, true);
+  }, 1500);
 });
 
 vampireLevel1.events.on("loadnextlevel", () => {
   engine.goto("shop2");
+  engine.clock.schedule(() => {
+    engine.remove(vampireLevel1);
+    vampireLevel1.clear();
+
+    player.showCoinHud(engine);
+  }, 1500);
 });
 
 shop2.events.on("loadnextlevel", () => {
   engine.goto("kitchen3");
+  engine.clock.schedule(() => {
+    engine.remove(shop2);
+    shop2.clear();
+
+    engine.add(player);
+    player.setIsEnabled(engine, true);
+  }, 1500);
 });
 
 kitchen3.events.on("loadnextcombatlevel", () => {
   engine.goto("vampire2");
+  engine.clock.schedule(() => {
+    engine.remove(kitchen3);
+    kitchen3.clear();
+
+    engine.add(player);
+    player.setIsEnabled(engine, true);
+  }, 1500);
 });
 
 vampireLevel2.events.on("loadnextlevel", () => {
   engine.goto("shop3");
+  engine.clock.schedule(() => {
+    engine.remove(vampireLevel2);
+    vampireLevel2.clear();
+
+    player.showCoinHud(engine);
+  }, 1500);
 });
 
 shop3.events.on("loadnextlevel", () => {
   engine.goto("kitchen4");
+  engine.clock.schedule(() => {
+    engine.remove(shop3);
+    shop3.clear();
+
+    engine.add(player);
+    player.setIsEnabled(engine, true);
+  }, 1500);
 });
 
 kitchen4.events.on("loadnextcombatlevel", () => {
   engine.goto("vampire3");
+  engine.clock.schedule(() => {
+    engine.remove(kitchen4);
+    kitchen4.clear();
+
+    engine.add(player);
+    player.setIsEnabled(engine, true);
+  }, 1500);
 });
 
 vampireLevel3.events.on("loadnextlevel", () => {
   engine.goto("shop4");
+  engine.clock.schedule(() => {
+    engine.remove(vampireLevel3);
+    vampireLevel3.clear();
+
+    player.showCoinHud(engine);
+  }, 1500);
 });
 
 shop4.events.on("loadnextlevel", () => {
   engine.goto("kitchen5");
+  engine.clock.schedule(() => {
+    engine.remove(shop4);
+    shop4.clear();
+
+    engine.add(player);
+    player.setIsEnabled(engine, true);
+  }, 1500);
 });
 
 kitchen5.events.on("loadnextcombatlevel", () => {

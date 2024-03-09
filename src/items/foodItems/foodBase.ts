@@ -23,10 +23,16 @@ export class FoodBase extends HoldableItem {
     this.statusBar = new StatusBar({
       x: 0,
       y: 0,
+      z: 2,
       maxVal: 0,
       size: "sm",
       color: ex.Color.Green,
     });
+  }
+
+  public setPos(val: ex.Vector) {
+    super.setPos(val);
+    this.statusBar.setPos(ex.vec(this.pos.x, this.pos.y + 20));
   }
 
   public getIsChopped() {
@@ -47,6 +53,8 @@ export class FoodBase extends HoldableItem {
 
   public onHit(damage: number, _knockBackForce: ex.Vector) {
     this.health -= damage;
+    this.statusBar.setCurrVal(Math.max(this.health, 0));
+
     if (this.health <= 0 && this.choppedSprite) {
       this.isChopped = true;
       this.graphics.use(this.choppedSprite);
@@ -54,18 +62,13 @@ export class FoodBase extends HoldableItem {
   }
 
   onPreUpdate(engine: ex.Engine<any>, delta: number): void {
-    if (this.isStatusShowing) {
-      this.statusBar.setPos(ex.vec(this.pos.x, this.pos.y + 20));
-      this.statusBar.setCurrVal(Math.max(this.health, 0));
-    }
-
     if (this.health !== this.maxHealth && !this.isStatusShowing) {
       this.isStatusShowing = true;
       engine.add(this.statusBar);
     }
 
-    if (this.health <= 0) {
-      this.isStatusShowing = true;
+    if (this.health <= 0 && this.isStatusShowing) {
+      this.isStatusShowing = false;
       this.statusBar.kill();
       engine.remove(this.statusBar);
     }
@@ -75,28 +78,6 @@ export class FoodBase extends HoldableItem {
     this.health = this.maxHealth;
     this.statusBar.setMaxVal(this.maxHealth);
 
-    // this.on("collisionstart", (evt) => this.collisionStart(engine, evt));
     super.onInitialize(engine);
   }
-
-  // private collisionStart(
-  //   engine: ex.Engine<any>,
-  //   event: ex.CollisionStartEvent<ex.Actor>
-  // ): void {
-  //   if (this.isHeld) {
-  //     return;
-  //   }
-
-  //   if (event.other instanceof ProjectileBase) {
-  //     this.chop(event.other.getDamage());
-  //   }
-  // }
-
-  // private chop(damage: number) {
-  //   this.health -= damage;
-  //   if (this.health <= 0 && this.choppedSprite) {
-  //     this.isChopped = true;
-  //     this.graphics.use(this.choppedSprite);
-  //   }
-  // }
 }

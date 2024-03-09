@@ -8,8 +8,8 @@ export class ShopHeavyMachineGun extends ShopItem {
       x,
       y,
       Weapon: HeavyMachineGun,
-      sprite: new ex.Text({ text: "HMG\n20", color: ex.Color.Black }),
-      cost: 20,
+      sprite: new ex.Text({ text: "HMG\n21", color: ex.Color.Black }),
+      cost: 21,
     });
   }
 }

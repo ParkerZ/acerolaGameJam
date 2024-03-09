@@ -9,7 +9,7 @@ export class Shotgun extends WeaponBase {
       movementPenalty: 125,
       Projectile: ProjectileShotgun,
       numProjectiles: 6,
-      spreadTotalAngleRadians: Math.PI / 5,
+      spreadTotalAngleRadians: Math.PI / 3.5,
     });
   }
 }

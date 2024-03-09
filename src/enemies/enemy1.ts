@@ -32,7 +32,7 @@ export class Enemy1 extends EnemyBase {
       attackRange: ATTACK_RANGE,
       attackForce: ATTACK_FORCE,
       sprite: mainSpriteSheet.getSprite(19, 8)?.clone() as ex.Sprite,
-      Pickup: selectRandom([CoinPickup, undefined, undefined]),
+      Pickup: selectRandom([CoinPickup, undefined, undefined, undefined]),
     });
   }
 }

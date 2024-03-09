@@ -30,7 +30,7 @@ export class VampireLevel3 extends VampireLevelBase {
   onInitialize(engine: ex.Engine<any>): void {
     super.onInitialize(engine);
 
-    setTimeout(() => {
+    engine.clock.schedule(() => {
       engine.add(this.superSecretExtraSpanwer);
     }, 550);
   }

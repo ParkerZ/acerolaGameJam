@@ -9,8 +9,8 @@ export class ShopSubMachineGun extends ShopItem {
       x,
       y,
       Weapon: SubMachineGun,
-      sprite: new ex.Text({ text: "SMG\n10", color: ex.Color.Black }),
-      cost: 10,
+      sprite: new ex.Text({ text: "SMG\n15", color: ex.Color.Black }),
+      cost: 15,
     });
   }
 }

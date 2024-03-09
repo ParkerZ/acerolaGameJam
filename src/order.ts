@@ -102,11 +102,11 @@ export class Order extends ex.ScreenElement {
 
   onInitialize(engine: ex.Engine<any>): void {
     engine.add(this.statusBar);
-    this.startCountdown();
+    this.startCountdown(engine);
     this.updateGraphics();
   }
 
-  private startCountdown() {
+  private startCountdown(engine: ex.Engine<any>) {
     if (this.isComplete) {
       return;
     }
@@ -119,7 +119,7 @@ export class Order extends ex.ScreenElement {
     this.waitTimeMs -= 100;
     this.statusBar.setCurrVal(Math.max(this.waitTimeMs, 0));
 
-    setTimeout(() => this.startCountdown(), 100);
+    engine.clock.schedule(() => this.startCountdown(engine), 100);
   }
 
   onPreKill(scene: ex.Scene<unknown>): void {

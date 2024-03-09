@@ -70,11 +70,11 @@ export class WeaponBase extends ex.Actor {
       engine.add(projectile);
     }
 
-    setTimeout(() => {
+    engine.clock.schedule(() => {
       this.onCooldown = false;
     }, this.cooldownMS);
 
-    setTimeout(() => {
+    engine.clock.schedule(() => {
       this.nearCooldownEnd = true;
     }, (this.cooldownMS * 3) / 4);
   }

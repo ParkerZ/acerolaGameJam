@@ -70,7 +70,7 @@ export class ProjectileBase extends ex.Actor {
       this.direction.y * this.speed
     );
 
-    setTimeout(() => {
+    engine.clock.schedule(() => {
       this.kill();
     }, this.decayMS);
   }

@@ -55,7 +55,7 @@ export class VampireLevelBase extends ex.Scene {
     );
     engine.add(this.timerBar);
 
-    setTimeout(() => {
+    engine.clock.schedule(() => {
       this.initializeTimerCountdown(engine);
     }, 500);
 
@@ -90,7 +90,7 @@ export class VampireLevelBase extends ex.Scene {
     this.timerMs -= this.timerTickMs;
     this.timerBar.setCurrVal(Math.max(this.timerMs, 0));
 
-    setTimeout(() => {
+    engine.clock.schedule(() => {
       this.initializeTimerCountdown(engine);
     }, this.timerTickMs);
   }
@@ -138,13 +138,9 @@ export class VampireLevelBase extends ex.Scene {
       ),
     ]);
 
-    const walls = new ex.Actor({
-      x: 0,
-      y: 0,
-      z: 1,
-      anchor: ex.Vector.Half,
+    const walls = new Wall({
       collider: wallCollider,
-      collisionType: ex.CollisionType.Fixed,
+      anchor: ex.Vector.Half,
     });
 
     walls.graphics.use(vampireWallsSprite, {
@@ -153,6 +149,7 @@ export class VampireLevelBase extends ex.Scene {
     engine.add(walls);
 
     this.events.on("deactivate", () => {
+      this.player = new Player({ x: 0, y: 0 });
       bg.kill();
       walls.kill();
       engine.remove(bg);

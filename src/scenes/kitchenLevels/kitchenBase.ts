@@ -54,35 +54,7 @@ export class KitchenBase extends ex.Scene {
     );
     engine.add(this.deliveryStation);
 
-    const orders = [
-      new Order({
-        x: 10,
-        y: 10,
-        dish: new Set(["food1", "food2"]),
-      }),
-      new Order({
-        x: 10,
-        y: 10,
-        dish: new Set(["food1", "food3"]),
-      }),
-      new Order({
-        x: 10,
-        y: 10,
-        dish: new Set(["food2", "food3"]),
-      }),
-      new Order({
-        x: 10,
-        y: 10,
-        dish: new Set(["food1", "food3"]),
-      }),
-      new Order({
-        x: 10,
-        y: 10,
-        dish: new Set(["food1", "food2"]),
-      }),
-    ];
-
-    setTimeout(() => {
+    engine.clock.schedule(() => {
       this.distributeOrders(engine);
     }, ORDER_DELAY_MS / 2);
 
@@ -153,19 +125,16 @@ export class KitchenBase extends ex.Scene {
       ),
     ]);
 
-    const walls = new ex.Actor({
-      x: 0,
-      y: 0,
-      z: 1,
-      anchor: ex.Vector.Zero,
+    const walls = new Wall({
       collider: wallCollider,
-      collisionType: ex.CollisionType.Fixed,
     });
 
     walls.graphics.use(kitchenWallsSprite);
     engine.add(walls);
 
     this.events.on("deactivate", () => {
+      engine.remove(this.player);
+      this.player = new Player({ x: 0, y: 0 });
       bg.kill();
       walls.kill();
       engine.remove(bg);
@@ -174,12 +143,18 @@ export class KitchenBase extends ex.Scene {
   }
 
   private distributeOrders(engine: ex.Engine<any>) {
+    if (this.currentOrders.length === 4) {
+      engine.clock.schedule(() => this.distributeOrders(engine), 500);
+      return;
+    }
+
     const nextOrder = this.ordersToDisribute[0];
     nextOrder.setPosByIndex(this.currentOrders.length);
     this.currentOrders.push(nextOrder);
     engine.add(nextOrder);
 
     nextOrder.events.on("orderexpired", (event) => {
+      nextOrder.events.clear();
       if (!this.isCurrentScene()) {
         return;
       }
@@ -200,7 +175,7 @@ export class KitchenBase extends ex.Scene {
         this.player.setIsEnabled(engine, false);
         this.events.emit("loadnextcombatlevel");
       } else {
-        this.player.loseHealth(nextOrder.getDamage());
+        this.player.loseHealth(engine, nextOrder.getDamage());
 
         if (this.isOrderingClosed && this.currentOrders.length === 0) {
           this.player.setIsEnabled(engine, false);
@@ -216,13 +191,14 @@ export class KitchenBase extends ex.Scene {
       return;
     }
 
-    setTimeout(() => {
+    engine.clock.schedule(() => {
       this.distributeOrders(engine);
     }, ORDER_DELAY_MS);
   }
 
   onDeactivate(context: ex.SceneActivationContext<undefined>): void {
     this.currentOrders.forEach((order) => {
+      order.events.clear();
       order.kill();
       context.engine.remove(order);
     });
@@ -237,6 +213,7 @@ export class KitchenBase extends ex.Scene {
       context.engine.remove(counter);
     });
 
+    this.deliveryStation.events.clear();
     this.deliveryStation.kill();
     context.engine.remove(this.deliveryStation);
 

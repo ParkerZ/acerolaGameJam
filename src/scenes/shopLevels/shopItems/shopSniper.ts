@@ -8,8 +8,8 @@ export class ShopSniper extends ShopItem {
       x,
       y,
       Weapon: Sniper,
-      sprite: new ex.Text({ text: "sniper\n15", color: ex.Color.Black }),
-      cost: 15,
+      sprite: new ex.Text({ text: "sniper\n18", color: ex.Color.Black }),
+      cost: 18,
     });
   }
 }

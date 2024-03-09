@@ -20,7 +20,7 @@ export class ProjectileHandgun extends ProjectileBase {
       direction,
       sprite: bulletSprite,
       decayMS: 250,
-      damage: 18,
+      damage: 15,
       knockBack: 250,
       collider: ex.Shape.Box(bulletSprite.width, bulletSprite.height),
     });

@@ -6,10 +6,10 @@ import { HoldableItem } from "./items/holdableItem";
 import { Plate } from "./items/plate";
 import { StatusBar } from "./statusBar";
 import { WeaponType } from "./types";
-import { Shotgun } from "./weapons/shotgun";
 import { FoodBase } from "./items/foodItems/foodBase";
 import { PlateRack } from "./counters/plateRack";
 import { CoinHud } from "./cointHud";
+import { Knife } from "./weapons/knife";
 
 export class Player extends ex.Actor {
   private isEnabled = true;
@@ -44,7 +44,7 @@ export class Player extends ex.Actor {
       collider: ex.Shape.Capsule(48, 48),
     });
 
-    this.weapon = new Shotgun();
+    this.weapon = new Knife();
     this.healthBar = new StatusBar({
       x: 0,
       y: 0,
@@ -67,7 +67,8 @@ export class Player extends ex.Actor {
   public setIsEnabled(engine: ex.Engine<any>, val: boolean) {
     if (val) {
       this.onEnable(engine);
-      setTimeout(() => {
+
+      engine.clock.schedule(() => {
         this.isEnabled = val;
       }, 250);
     } else {
@@ -89,16 +90,28 @@ export class Player extends ex.Actor {
     this.coinHud.setCoins(this.numCoins);
   }
 
-  public loseHealth(val: number) {
+  public getHealthBar() {
+    return this.healthBar;
+  }
+
+  public loseHealth(engine: ex.Engine<any>, val: number) {
     this.health -= val;
     this.healthBar.setCurrVal(Math.max(this.health, 0));
 
-    if (this.health < 0) {
+    if (this.health <= 0) {
       // TODO: LOSE
-      setTimeout(() => {
+      engine.clock.schedule(() => {
         alert("YOU LOSE");
       }, 500);
     }
+  }
+
+  public getSpeed() {
+    return this.velocity;
+  }
+
+  public getWeapon() {
+    return this.weapon;
   }
 
   public healToFull() {
@@ -112,6 +125,7 @@ export class Player extends ex.Actor {
   }
 
   public handleEnemyAttack(
+    engine: ex.Engine<any>,
     enemyName: string,
     damage: number,
     knockBackForce: ex.Vector
@@ -121,10 +135,10 @@ export class Player extends ex.Actor {
     }
 
     this.damageCooldownMap[enemyName] = damage;
-    this.loseHealth(damage);
+    this.loseHealth(engine, damage);
     this.knockBackForce = this.knockBackForce.add(knockBackForce);
 
-    setTimeout(() => {
+    engine.clock.schedule(() => {
       delete this.damageCooldownMap[enemyName];
     }, this.damageCooldownMs);
   }

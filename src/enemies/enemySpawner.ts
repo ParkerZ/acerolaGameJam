@@ -10,6 +10,28 @@ import {
 import { StickyEnemy1 } from "./stickyEnemy1";
 import { EnemyBase } from "./enemyBase";
 import { CombinedEnemy1 } from "./combinedEnemy1";
+import { shuffleArray } from "../util";
+
+const halfX = 500;
+const halfY = 400;
+const spawnPoints = [
+  ex.vec(-halfX, -halfY),
+  ex.vec(-halfX, halfY / 2 - halfY),
+  ex.vec(-halfX, 0),
+  ex.vec(-halfX, (3 * halfY) / 2 - halfY),
+  ex.vec(-halfX, halfY),
+  ex.vec(halfX, -halfY),
+  ex.vec(halfX, halfY / 2 - halfY),
+  ex.vec(halfX, (2 * halfY) / 2 - halfY),
+  ex.vec(halfX, (3 * halfY) / 2 - halfY),
+  ex.vec(halfX, halfY),
+  ex.vec(halfX / 2 - halfX, -halfY),
+  ex.vec(0, -halfY),
+  ex.vec((3 * halfX) / 2 - halfX, -halfY),
+  ex.vec(halfX / 2 - halfX, halfY),
+  ex.vec(0, halfY),
+  ex.vec((3 * halfX) / 2 - halfX, halfY),
+];
 
 export class EnemySpawner extends ex.Actor {
   private Enemy: typeof Enemy1;
@@ -21,6 +43,9 @@ export class EnemySpawner extends ex.Actor {
   private lastTargetPos: ex.Vector = ex.Vector.Zero;
   private speedModifier: number = 0;
   private stickyCount = 0;
+
+  private spawnPoints: ex.Vector[] = [];
+  private spawnIndex: number = 0;
 
   constructor({
     Enemy,
@@ -54,9 +79,11 @@ export class EnemySpawner extends ex.Actor {
       return;
     }
 
+    this.spawnIndex = Math.floor(Math.random() * this.spawnPoints.length);
+    this.spawnPoints = shuffleArray(spawnPoints);
     this.spawnEnemy(engine);
 
-    setTimeout(() => {
+    engine.clock.schedule(() => {
       this.initializeSpawnLoop(engine);
     }, this.spawnRateMs);
   }
@@ -95,6 +122,8 @@ export class EnemySpawner extends ex.Actor {
     this.addEnemy(engine, newEnemy);
 
     newEnemy.events.on("combineenemies", ({ enemiesToCombine }) => {
+      newEnemy.events.clear();
+
       this.stickyCount--;
 
       const positionForCombinedEnemy = newEnemy.pos.clone();
@@ -161,6 +190,7 @@ export class EnemySpawner extends ex.Actor {
     engine.add(newEnemy);
 
     newEnemy.events.on("enemydied", () => {
+      newEnemy.events.clear();
       if (newEnemy instanceof StickyEnemy1) {
         this.stickyCount--;
       }
@@ -178,77 +208,23 @@ export class EnemySpawner extends ex.Actor {
   }
 
   /**
-   * Attempts to create a random spawn position that is outside the current field of view.
-   * The direction can be from any place around the player so long as it wouldn't spawn the enemy outside the map.
-   *
-   * If the player is along a wall, a direction that thwarts player movement is chosen.
-   * If the player is in a corner, a direction directly lateral or vertical is chosen.
+   * Gets the next spawn point from a list of potential options.
+   * If the chosen option might be off the map, try again.
    */
   private getSmartRandomPosition(engine: ex.Engine<any>): ex.Vector {
-    let xDir = Math.random() < 0.5 ? -1 : 1;
-    const targetDeltaX = this.target.pos.x - this.lastTargetPos.x;
-    if (targetDeltaX > 0) {
-      xDir = 1;
-    } else if (targetDeltaX < 0) {
-      xDir = -1;
-    }
+    const point = this.spawnPoints[this.spawnIndex];
+    this.spawnIndex = (this.spawnIndex + 1) % 16;
 
-    let yDir = Math.random() < 0.5 ? -1 : 1;
-    const targetDeltaY = this.target.pos.y - this.lastTargetPos.y;
-    if (targetDeltaY > 0) {
-      yDir = 1;
-    } else if (targetDeltaY < 0) {
-      yDir = -1;
-    }
-
-    this.lastTargetPos = this.target.pos.clone();
-
-    // [x]====player====[x]
-    let xMagnitude = xDir * (engine.halfDrawWidth + 100);
-    let yMagnitude = yDir * (engine.halfDrawHeight + 100);
-
-    const isXTooLarge = (x: number) =>
-      this.target.pos.x + x > MAX_X_SPAWN ||
-      this.target.pos.x + x < MIN_X_SPAWN;
-
-    const isYTooLarge = (y: number) =>
-      this.target.pos.y + y > MAX_Y_SPAWN ||
-      this.target.pos.y + y < MIN_Y_SPAWN;
-
-    if (isXTooLarge(xMagnitude) && isYTooLarge(yMagnitude)) {
-      const randomBool = !Math.floor(Math.random() * 2);
-      xMagnitude = randomBool ? 0 : -1 * xMagnitude;
-      yMagnitude = !randomBool ? 0 : -1 * yMagnitude;
-    } else {
-      if (isXTooLarge(xMagnitude)) {
-        xMagnitude = 0;
-      }
-
-      if (isYTooLarge(yMagnitude)) {
-        yMagnitude = 0;
-      }
-    }
-
-    // Randomly set x or y to zero sometimes
-    const randomNum = Math.floor(Math.random() * 6);
     if (
-      randomNum === 0 &&
-      !isXTooLarge(xMagnitude) &&
-      !!isXTooLarge(-xMagnitude)
+      (this.target.pos.x < 0 && this.target.pos.x + point.x < MIN_X_SPAWN) ||
+      (this.target.pos.x > 0 && this.target.pos.x + point.x > MAX_X_SPAWN) ||
+      (this.target.pos.y < 0 && this.target.pos.y + point.y < MIN_Y_SPAWN) ||
+      (this.target.pos.y > 0 && this.target.pos.y + point.y > MAX_Y_SPAWN)
     ) {
-      xMagnitude = 0;
-    } else if (
-      randomNum === 1 &&
-      !isYTooLarge(yMagnitude) &&
-      !!isYTooLarge(-yMagnitude)
-    ) {
-      yMagnitude = 0;
+      return this.getSmartRandomPosition(engine);
     }
 
-    return ex.vec(
-      xMagnitude + this.target.pos.x,
-      yMagnitude + this.target.pos.y
-    );
+    return point.add(this.target.pos);
   }
 
   onPreKill(scene: ex.Scene<unknown>): void {
