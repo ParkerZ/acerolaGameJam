@@ -11,6 +11,7 @@ import { COUNTER_WIDTH } from "../../constants";
 import { Wall } from "../../wall";
 import { StatusBar } from "../../statusBar";
 import { EnemySpawner } from "../../enemies/enemySpawner";
+import { getElapsedTime } from "../../util";
 
 export class VampireLevelBase extends ex.Scene {
   public events = new ex.EventEmitter<
@@ -22,6 +23,8 @@ export class VampireLevelBase extends ex.Scene {
   protected timerMs: number;
   protected timerTickMs: number = 100;
   protected timerBar: StatusBar;
+  protected startTime: Date;
+  protected isEnabled: boolean = false;
 
   private walls: Wall[] = [];
   private floors: ex.Actor[] = [];
@@ -45,8 +48,10 @@ export class VampireLevelBase extends ex.Scene {
       z: 2,
       maxVal: timerMs,
       size: "thin",
-      color: ex.Color.ExcaliburBlue,
+      color: ex.Color.fromHex("#416aa3"),
     });
+
+    this.startTime = new Date();
   }
 
   onInitialize(engine: ex.Engine<any>): void {
@@ -56,12 +61,11 @@ export class VampireLevelBase extends ex.Scene {
     engine.add(this.timerBar);
 
     engine.clock.schedule(() => {
-      this.initializeTimerCountdown(engine);
+      this.startTime = new Date();
+      this.isEnabled = true;
     }, 500);
 
     const cameraMount = new PlayerCameraMount(this.player);
-
-    this.player.setIsEnabled(engine, true);
 
     this.addWalls(engine);
 
@@ -76,23 +80,21 @@ export class VampireLevelBase extends ex.Scene {
     engine.add(this.spawner);
   }
 
-  private initializeTimerCountdown(engine: ex.Engine<any>) {
-    if (!this.isCurrentScene()) {
+  onPreUpdate(engine: ex.Engine<any>, delta: number): void {
+    if (!this.isEnabled) {
       return;
     }
 
-    if (this.timerMs <= 0) {
+    const elapsedTime = getElapsedTime(this.startTime);
+
+    if (elapsedTime >= this.timerMs) {
+      this.isEnabled = false;
       this.cleanupSpawner(engine);
       this.events.emit("loadnextlevel");
       return;
     }
 
-    this.timerMs -= this.timerTickMs;
-    this.timerBar.setCurrVal(Math.max(this.timerMs, 0));
-
-    engine.clock.schedule(() => {
-      this.initializeTimerCountdown(engine);
-    }, this.timerTickMs);
+    this.timerBar.setCurrVal(Math.max(this.timerMs - elapsedTime, 0));
   }
 
   protected cleanupSpawner(engine: ex.Engine<any>): void {

@@ -6,11 +6,22 @@ export abstract class CounterBase extends ex.Actor {
   protected heldItem?: HoldableItem;
   private activeActor?: ex.Actor;
 
-  constructor({ x, y, sprite }: { x: number; y: number; sprite: ex.Graphic }) {
+  constructor({
+    x,
+    y,
+    sprite,
+    rotation,
+  }: {
+    x: number;
+    y: number;
+    sprite: ex.Graphic;
+    rotation: number;
+  }) {
     super({
       x,
       y,
       z: 2,
+      rotation,
       collisionType: ex.CollisionType.Passive,
       collisionGroup: ex.CollisionGroupManager.groupByName("counter"),
       collider: ex.Shape.Capsule(72, 72),

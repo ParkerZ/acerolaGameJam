@@ -36,9 +36,7 @@ export class Shop extends ex.Scene {
   }
 
   onInitialize(engine: ex.Engine<any>): void {
-    this.player.setIsEnabled(engine, false);
     this.player.healToFull();
-    this.player.showCoinHud(engine);
 
     const weaponOptions = new Set(
       [

@@ -23,6 +23,48 @@ const outlineWeightMap: Record<Size, number> = {
   thin: 1,
 };
 
+class InnerBar extends ex.ScreenElement {
+  protected barWidth: number;
+  protected barWidthMax: number;
+  protected barHeight: number;
+
+  constructor({
+    width,
+    height,
+    color,
+    z,
+  }: {
+    width: number;
+    height: number;
+    color: ex.Color;
+    z: number;
+  }) {
+    super({
+      z,
+      anchor: ex.Vector.Half,
+    });
+    this.barWidth = width;
+    this.barWidthMax = width;
+    this.barHeight = height;
+    this.color = color;
+  }
+
+  public onInitialize(engine: ex.Engine<any>): void {
+    this.graphics.onPostDraw = (gfx: ex.ExcaliburGraphicsContext) => {
+      gfx.drawRectangle(
+        ex.vec(-this.barWidthMax / 2, -this.barHeight / 2),
+        this.barWidth,
+        this.barHeight,
+        this.color
+      );
+    };
+  }
+
+  public setBarWidth(val: number) {
+    this.barWidth = Math.max(val, 0);
+  }
+}
+
 export class StatusBar extends ex.ScreenElement {
   protected barWidth: number;
   protected barHeight: number;
@@ -30,6 +72,7 @@ export class StatusBar extends ex.ScreenElement {
   protected maxVal: number;
   protected currVal: number;
   protected barColor: ex.Color;
+  protected innerBar: InnerBar;
 
   constructor({
     x,
@@ -59,10 +102,18 @@ export class StatusBar extends ex.ScreenElement {
     this.maxVal = maxVal;
     this.currVal = maxVal;
     this.barColor = color;
+
+    this.innerBar = new InnerBar({
+      width: this.barWidth,
+      height: this.barHeight,
+      color: this.barColor,
+      z,
+    });
   }
 
   public setPos(pos: ex.Vector) {
     this.pos = pos;
+    this.innerBar.pos = this.pos;
   }
 
   public setMaxVal(val: number) {
@@ -75,46 +126,44 @@ export class StatusBar extends ex.ScreenElement {
     this.updateGraphics();
   }
 
-  onInitialize(engine: ex.Engine<any>): void {
-    this.updateGraphics();
+  public registerInnerBar(engine: ex.Engine<any>) {
+    engine.add(this.innerBar);
   }
 
-  private updateGraphics() {
-    const outline = new ex.Rectangle({
-      height: this.barHeight + this.outlineWeight * 2,
-      width: this.barWidth + this.outlineWeight * 2,
-      color: ex.Color.White,
-    });
-
-    const bg = new ex.Rectangle({
-      height: this.barHeight - 2,
-      width: this.barWidth - 2,
-      color: ex.Color.LightGray,
-    });
-
-    const bar = new ex.Rectangle({
-      height: this.barHeight,
-      width: this.barWidth * (this.currVal / this.maxVal),
-      color: this.barColor,
-    });
-
+  onInitialize(engine: ex.Engine<any>): void {
     this.graphics.use(
       new ex.GraphicsGroup({
         members: [
           {
-            graphic: outline,
+            graphic: new ex.Rectangle({
+              height: this.barHeight + this.outlineWeight * 2,
+              width: this.barWidth + this.outlineWeight * 2,
+              color: ex.Color.White,
+            }),
             offset: ex.Vector.Zero,
           },
           {
-            graphic: bg,
+            graphic: new ex.Rectangle({
+              height: this.barHeight - 2,
+              width: this.barWidth - 2,
+              color: ex.Color.LightGray,
+            }),
             offset: ex.vec(this.outlineWeight + 1, this.outlineWeight + 1),
-          },
-          {
-            graphic: bar,
-            offset: ex.vec(this.outlineWeight, this.outlineWeight),
           },
         ],
       })
     );
+
+    this.registerInnerBar(engine);
+    this.updateGraphics();
+  }
+
+  private updateGraphics() {
+    this.innerBar.setBarWidth(this.barWidth * (this.currVal / this.maxVal));
+  }
+
+  onPreKill(scene: ex.Scene<unknown>): void {
+    scene.engine.remove(this.innerBar);
+    this.innerBar.kill();
   }
 }

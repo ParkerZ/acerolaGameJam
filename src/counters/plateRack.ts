@@ -5,7 +5,15 @@ import { Plate } from "../items/plate";
 import { HoldableItem } from "../items/holdableItem";
 
 export class PlateRack extends CounterBase {
-  constructor({ x, y }: { x: number; y: number }) {
+  constructor({
+    x,
+    y,
+    rotation = Math.PI / 2,
+  }: {
+    x: number;
+    y: number;
+    rotation?: number;
+  }) {
     super({
       x,
       y,
@@ -21,6 +29,7 @@ export class PlateRack extends CounterBase {
           },
         ],
       }),
+      rotation,
     });
   }
 

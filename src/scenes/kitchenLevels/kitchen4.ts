@@ -23,44 +23,52 @@ export class Kitchen4 extends KitchenBase {
       new PlateRack({
         x: engine.halfDrawWidth - COUNTER_WIDTH * 2,
         y: engine.halfDrawHeight - COUNTER_WIDTH * 2,
+        rotation: 0,
       }),
       new Counter({
         x: engine.halfDrawWidth - COUNTER_WIDTH * 1,
         y: engine.halfDrawHeight + COUNTER_WIDTH * 0,
+        rotation: 0,
       }),
       new Counter({
         x: engine.halfDrawWidth - COUNTER_WIDTH * 0,
         y: engine.halfDrawHeight + COUNTER_WIDTH * 0,
+        rotation: 0,
       }),
       new Counter({
         x: engine.halfDrawWidth + COUNTER_WIDTH * 1,
         y: engine.halfDrawHeight + COUNTER_WIDTH * 0,
+        rotation: 0,
       }),
       new Crate({
         x: engine.halfDrawWidth - COUNTER_WIDTH * 2,
         y: engine.halfDrawHeight + COUNTER_WIDTH * 2,
+        rotation: Math.PI,
         Food: Food1,
       }),
       new Crate({
         x: engine.halfDrawWidth + COUNTER_WIDTH * 0,
         y: engine.halfDrawHeight + COUNTER_WIDTH * 2,
+        rotation: Math.PI,
         Food: Food2,
       }),
       new Crate({
         x: engine.halfDrawWidth + COUNTER_WIDTH * 2,
         y: engine.halfDrawHeight + COUNTER_WIDTH * 2,
+        rotation: Math.PI,
         Food: Food3,
       }),
       new Trash({
         x: engine.halfDrawWidth + COUNTER_WIDTH * 2,
         y: engine.halfDrawHeight - COUNTER_WIDTH * 2,
+        rotation: 0,
       }),
     ];
 
-    const foods: FoodType[] = ["food1", "food2", "food3"];
+    const foods: FoodType[] = ["food2", "food3"];
     const createDish = () => {
-      const randomIndex = Math.floor(Math.random() * 3);
-      return foods.filter((_item, i) => i !== randomIndex);
+      const randomIndex = Math.floor(Math.random() * 2);
+      return ["food1" as FoodType, foods[randomIndex]];
     };
 
     this.ordersToDisribute = [

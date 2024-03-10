@@ -1,23 +1,35 @@
 import * as ex from "excalibur";
-import { mainSpriteSheet } from "../resources";
+import { counterSprite } from "../resources";
 import { CounterBase } from "./counterBase";
 import { FoodBase } from "../items/foodItems/foodBase";
 
 export class Crate extends CounterBase {
   private Food: typeof FoodBase;
 
-  constructor({ x, y, Food }: { x: number; y: number; Food: typeof FoodBase }) {
+  constructor({
+    x,
+    y,
+    Food,
+    rotation,
+  }: {
+    x: number;
+    y: number;
+    Food: typeof FoodBase;
+    rotation: number;
+  }) {
     const graphicMembers = [
       {
-        graphic: mainSpriteSheet.getSprite(25, 11)?.clone() as ex.Sprite,
+        graphic: counterSprite,
         offset: ex.Vector.Zero,
       },
     ];
 
     const foodSprite = new Food({ x: 0, y: 0 }).getSprite();
     if (foodSprite) {
+      const sprite = foodSprite.clone();
+      sprite.rotation -= rotation;
       graphicMembers.push({
-        graphic: foodSprite as ex.Sprite,
+        graphic: sprite as ex.Sprite,
         offset: ex.Vector.Zero,
       });
     }
@@ -28,6 +40,7 @@ export class Crate extends CounterBase {
       sprite: new ex.GraphicsGroup({
         members: graphicMembers,
       }),
+      rotation,
     });
 
     this.Food = Food;

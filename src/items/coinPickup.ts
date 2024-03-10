@@ -1,11 +1,15 @@
 import * as ex from "excalibur";
 import { mainSpriteSheet } from "../resources";
 import { Player } from "../player";
+import { getElapsedTime } from "../util";
 
 export class CoinPickup extends ex.Actor {
   private isPickedUp: boolean = false;
   private target: Player;
   private isMagnetized: boolean = false;
+  private isEnabled: boolean = false;
+  private lastDistanceCheck: Date;
+  private checkDelayMs: number = 500;
 
   constructor({ x, y, player }: { x: number; y: number; player: Player }) {
     super({
@@ -17,6 +21,7 @@ export class CoinPickup extends ex.Actor {
     });
 
     this.target = player;
+    this.lastDistanceCheck = new Date();
   }
 
   onInitialize(engine: ex.Engine<any>): void {
@@ -24,7 +29,7 @@ export class CoinPickup extends ex.Actor {
 
     // Delay pickup listener
     engine.clock.schedule(() => {
-      this.checkDistanceToPlayer(engine);
+      this.isEnabled = true;
       this.on("precollision", (evt) => this.precollision(engine, evt));
     }, 500);
 
@@ -39,26 +44,27 @@ export class CoinPickup extends ex.Actor {
   }
 
   onPreUpdate(engine: ex.Engine<any>, delta: number): void {
-    if (!this.isMagnetized) {
+    if (this.isMagnetized) {
+      const speed = this.vel.size;
+      this.vel = this.target.pos
+        .sub(this.pos)
+        .normalize()
+        .scale(speed + 20);
       return;
     }
 
-    const speed = this.vel.size;
-    this.vel = this.target.pos
-      .sub(this.pos)
-      .normalize()
-      .scale(speed + 20);
-  }
+    if (this.isEnabled) {
+      // const elapsedTime = getElapsedTime(this.lastDistanceCheck);
 
-  private checkDistanceToPlayer(engine: ex.Engine<any>) {
-    if (this.pos.distance(this.target.pos) < 180) {
-      this.isMagnetized = true;
-      return;
+      // if (elapsedTime < this.checkDelayMs) {
+      //   return;
+      // }
+
+      if (this.pos.distance(this.target.pos) < 180) {
+        this.isMagnetized = true;
+        return;
+      }
     }
-
-    engine.clock.schedule(() => {
-      this.checkDistanceToPlayer(engine);
-    }, 500);
   }
 
   private precollision(

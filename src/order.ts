@@ -8,7 +8,7 @@ import {
 import { ActorEvents } from "excalibur/build/dist/Actor";
 import { StatusBar } from "./statusBar";
 import { mainSpriteSheet } from "./resources";
-import { shuffleArray } from "./util";
+import { getElapsedTime, shuffleArray } from "./util";
 
 export class Order extends ex.ScreenElement {
   public events = new ex.EventEmitter<
@@ -20,6 +20,7 @@ export class Order extends ex.ScreenElement {
   protected price: number;
   protected damage: number = ORDER_DAMAGE;
   protected isComplete: boolean = false;
+  protected startTime: Date;
 
   private statusBar: StatusBar;
 
@@ -45,8 +46,9 @@ export class Order extends ex.ScreenElement {
       x: 0,
       y: 0,
       maxVal: this.waitTimeMs,
-      color: ex.Color.ExcaliburBlue,
+      color: ex.Color.fromHex("#416aa3"),
     });
+    this.startTime = new Date();
   }
 
   public getDishIngredients(): Set<FoodType> {
@@ -82,7 +84,7 @@ export class Order extends ex.ScreenElement {
       { graphic: box, offset: ex.Vector.Zero },
     ];
 
-    shuffleArray(Array.from(this.dishIngredients)).forEach((foodType, i) => {
+    Array.from(this.dishIngredients).forEach((foodType, i) => {
       const graphic = FOOD_TYPE_SPRITE_MAP[foodType];
       members.push({
         graphic,
@@ -101,25 +103,24 @@ export class Order extends ex.ScreenElement {
   }
 
   onInitialize(engine: ex.Engine<any>): void {
+    this.startTime = new Date();
     engine.add(this.statusBar);
-    this.startCountdown(engine);
     this.updateGraphics();
   }
 
-  private startCountdown(engine: ex.Engine<any>) {
+  onPreUpdate(engine: ex.Engine<any>, delta: number): void {
     if (this.isComplete) {
       return;
     }
 
-    if (this.waitTimeMs <= 0) {
+    const elapsedTime = getElapsedTime(this.startTime);
+
+    if (elapsedTime >= this.waitTimeMs) {
       this.events.emit("orderexpired");
       return;
     }
 
-    this.waitTimeMs -= 100;
-    this.statusBar.setCurrVal(Math.max(this.waitTimeMs, 0));
-
-    engine.clock.schedule(() => this.startCountdown(engine), 100);
+    this.statusBar.setCurrVal(Math.max(this.waitTimeMs - elapsedTime, 0));
   }
 
   onPreKill(scene: ex.Scene<unknown>): void {

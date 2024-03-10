@@ -17,7 +17,6 @@ export class EnemyBase extends ex.Actor {
   protected health: number;
   protected damage: number;
   protected speed: number;
-  protected speedAccelerationMs: number;
   protected canAcc: boolean = true;
   protected target: Player;
   protected attackRange: number;
@@ -35,7 +34,6 @@ export class EnemyBase extends ex.Actor {
     maxHealth,
     damage,
     speed,
-    speedAccelerationMs = 200,
     target,
     attackRange,
     attackForce,
@@ -47,7 +45,6 @@ export class EnemyBase extends ex.Actor {
     maxHealth: number;
     damage: number;
     speed: number;
-    speedAccelerationMs?: number;
     target: Player;
     attackRange: number;
     attackForce: number;
@@ -65,7 +62,6 @@ export class EnemyBase extends ex.Actor {
     this.health = maxHealth;
     this.damage = damage;
     this.speed = speed;
-    this.speedAccelerationMs = speedAccelerationMs;
     this.target = target;
     this.attackRange = attackRange;
     this.attackForce = attackForce;
@@ -78,7 +74,7 @@ export class EnemyBase extends ex.Actor {
       z: 1,
       maxVal: this.maxHealth,
       size: "sm",
-      color: ex.Color.Green,
+      color: ex.Color.fromHex("#6eaa78"),
     });
   }
 
@@ -98,8 +94,6 @@ export class EnemyBase extends ex.Actor {
 
   onInitialize(engine: ex.Engine<any>): void {
     this.graphics.use(this.sprite);
-
-    // this.startAcceleration(engine);wd
   }
 
   onPreUpdate(engine: ex.Engine<any>, delta: number): void {
@@ -155,21 +149,6 @@ export class EnemyBase extends ex.Actor {
         intendedVel.normalize().scale(this.attackForce)
       );
     }
-  }
-
-  private startAcceleration(engine: ex.Engine<any>) {
-    if (
-      this.health <= 0 ||
-      this.speed > this.target.getSpeed() + 5 ||
-      !this.canAcc
-    ) {
-      return;
-    }
-
-    engine.clock.schedule(() => {
-      this.speed++;
-      this.startAcceleration(engine);
-    }, this.speedAccelerationMs);
   }
 
   onPreKill(scene: ex.Scene<unknown>): void {

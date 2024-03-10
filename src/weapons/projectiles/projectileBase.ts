@@ -129,7 +129,6 @@ export class ProjectileBase extends ex.Actor {
     return object.pos.distance(this.startingPos);
   }
 
-  // TODO: prevent multi collision for knife
   onCollisionStart(
     self: ex.Collider,
     other: ex.Collider,

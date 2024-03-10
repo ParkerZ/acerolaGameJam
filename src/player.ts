@@ -51,6 +51,7 @@ export class Player extends ex.Actor {
       z: 2,
       maxVal: this.maxHealth,
       size: "lg",
+      color: ex.Color.fromHex("#9a4f50"),
     });
     this.coinHud = new CoinHud({
       x: 0,
@@ -170,6 +171,7 @@ export class Player extends ex.Actor {
       ex.vec(engine.halfDrawWidth, (engine.drawHeight * 94) / 100)
     );
     engine.add(this.healthBar);
+    this.healthBar.registerInnerBar(engine);
 
     this.showCoinHud(engine);
   }
@@ -182,6 +184,7 @@ export class Player extends ex.Actor {
     this.attackInputs = 0;
     this.targetCounter = undefined;
     this.possibleCounters = [];
+    engine.add(this.weapon);
   }
 
   onPreUpdate(engine: ex.Engine<any>, delta: number): void {
@@ -193,10 +196,12 @@ export class Player extends ex.Actor {
     this.handleInteraction(engine);
     this.handleAttack(engine);
 
-    const mousePos = engine.input.pointers.primary.lastScreenPos;
-    const direction = mousePos.sub(
-      ex.vec(engine.halfDrawWidth, engine.halfDrawHeight)
-    );
+    const screenPos = ex
+      .vec(engine.halfDrawWidth, engine.halfDrawHeight)
+      .add(this.pos.sub(engine.currentScene.camera.pos));
+
+    const direction =
+      engine.input.pointers.primary.lastScreenPos.sub(screenPos);
 
     this.sprite.rotation = Math.atan2(direction.x, -direction.y);
   }
@@ -221,10 +226,9 @@ export class Player extends ex.Actor {
 
   private handleMovement(engine: ex.Engine<any>): void {
     // Change movement speed if attacking
-    const velocity =
-      this.isAttacking && !this.weapon.getNearCooldownEnd()
-        ? this.velocity - this.weapon.getMovementPenalty()
-        : this.velocity;
+    const velocity = !this.weapon.getNearCooldownEnd()
+      ? this.velocity - this.weapon.getMovementPenalty()
+      : this.velocity;
 
     let moveX = 0;
     let moveY = 0;

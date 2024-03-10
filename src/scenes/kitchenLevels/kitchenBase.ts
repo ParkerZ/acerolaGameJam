@@ -6,7 +6,7 @@ import { kitchenBgSprite, kitchenWallsSprite } from "../../resources";
 import { CounterBase } from "../../counters/counterBase";
 import { COUNTER_WIDTH, ORDER_DELAY_MS } from "../../constants";
 import { NextCombatLevelEvent, OrdersClearedEvent } from "../../types";
-import { selectRandom } from "../../util";
+import { getElapsedTime, selectRandom } from "../../util";
 import { AberrantOrder } from "../../aberrantOrder";
 import { Wall } from "../../wall";
 
@@ -23,6 +23,8 @@ export class KitchenBase extends ex.Scene {
   private isOrderingClosed: boolean = false;
   private walls: Wall[] = [];
   private floors: ex.Actor[] = [];
+  private isEnabled: boolean = false;
+  private lastOrderTime: Date;
 
   protected ordersToDisribute: Order[] = [];
   protected counters: CounterBase[] = [];
@@ -32,11 +34,10 @@ export class KitchenBase extends ex.Scene {
     super();
     this.player = player;
     this.deliveryStation = new DeliveryStation({ x: 0, y: 0 });
+    this.lastOrderTime = new Date();
   }
 
   onInitialize(engine: ex.Engine<any>): void {
-    this.player.setIsEnabled(engine, true);
-
     this.addWalls(engine);
 
     this.player.setPos(ex.vec(engine.halfDrawWidth, engine.halfDrawHeight));
@@ -56,6 +57,8 @@ export class KitchenBase extends ex.Scene {
 
     engine.clock.schedule(() => {
       this.distributeOrders(engine);
+      this.lastOrderTime = new Date();
+      this.isEnabled = true;
     }, ORDER_DELAY_MS / 2);
 
     this.deliveryStation.events.on("deliveryevent", (event) => {
@@ -86,6 +89,23 @@ export class KitchenBase extends ex.Scene {
         this.events.emit("orderscleared");
       }
     });
+  }
+
+  onPreUpdate(engine: ex.Engine<any>, delta: number): void {
+    if (!this.isEnabled) {
+      return;
+    }
+
+    if (this.ordersToDisribute.length === 0) {
+      this.isEnabled = false;
+      return;
+    }
+
+    const elapsedTime = getElapsedTime(this.lastOrderTime);
+    if (elapsedTime >= ORDER_DELAY_MS && this.currentOrders.length < 4) {
+      this.distributeOrders(engine);
+      this.lastOrderTime = new Date();
+    }
   }
 
   private addWalls(engine: ex.Engine<any>) {
@@ -143,11 +163,6 @@ export class KitchenBase extends ex.Scene {
   }
 
   private distributeOrders(engine: ex.Engine<any>) {
-    if (this.currentOrders.length === 4) {
-      engine.clock.schedule(() => this.distributeOrders(engine), 500);
-      return;
-    }
-
     const nextOrder = this.ordersToDisribute[0];
     nextOrder.setPosByIndex(this.currentOrders.length);
     this.currentOrders.push(nextOrder);
@@ -190,10 +205,6 @@ export class KitchenBase extends ex.Scene {
       this.isOrderingClosed = true;
       return;
     }
-
-    engine.clock.schedule(() => {
-      this.distributeOrders(engine);
-    }, ORDER_DELAY_MS);
   }
 
   onDeactivate(context: ex.SceneActivationContext<undefined>): void {

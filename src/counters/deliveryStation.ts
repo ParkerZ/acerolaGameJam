@@ -11,11 +11,20 @@ export class DeliveryStation extends CounterBase {
     ActorEvents & { deliveryevent: DeliveryEvent }
   >();
 
-  constructor({ x, y }: { x: number; y: number }) {
+  constructor({
+    x,
+    y,
+    rotation = 0,
+  }: {
+    x: number;
+    y: number;
+    rotation?: number;
+  }) {
     super({
       x,
       y,
       sprite: mainSpriteSheet.getSprite(4, 19)?.clone() as ex.Sprite,
+      rotation,
     });
   }
 

@@ -1,15 +1,24 @@
 import * as ex from "excalibur";
-import { mainSpriteSheet } from "../resources";
+import { counterSprite } from "../resources";
 import { CounterBase } from "./counterBase";
 import { HoldableItem } from "../items/holdableItem";
 import { Plate } from "../items/plate";
 
 export class Counter extends CounterBase {
-  constructor({ x, y }: { x: number; y: number }) {
+  constructor({
+    x,
+    y,
+    rotation = Math.PI / 2,
+  }: {
+    x: number;
+    y: number;
+    rotation?: number;
+  }) {
     super({
       x,
       y,
-      sprite: mainSpriteSheet.getSprite(23, 11)?.clone() as ex.Sprite,
+      sprite: counterSprite,
+      rotation,
     });
   }
 

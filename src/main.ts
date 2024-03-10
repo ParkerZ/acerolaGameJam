@@ -15,12 +15,13 @@ import { ShopHeavyMachineGun } from "./scenes/shopLevels/shopItems/shopHeavyMach
 import { ShopShotgun } from "./scenes/shopLevels/shopItems/shopShotgun";
 import { ShopSubMachineGun } from "./scenes/shopLevels/shopItems/shopSubMachineGun";
 import { ShopSniper } from "./scenes/shopLevels/shopItems/shopSniper";
+import { SCENE_FADE_OUT_TIME } from "./constants";
 
 const buildSceneWithTransitions = (scene: ex.Scene) => ({
   scene,
   transitions: {
     in: new ex.FadeInOut({
-      duration: 500,
+      duration: SCENE_FADE_OUT_TIME,
       direction: "in",
       color: ex.Color.Black,
     }),
@@ -97,7 +98,8 @@ kitchen1.events.on("orderscleared", () => {
     kitchen1.clear();
 
     player.showCoinHud(engine);
-  }, 1500);
+    player.setIsEnabled(engine, false);
+  }, SCENE_FADE_OUT_TIME + 100);
 });
 
 shop1.events.on("loadnextlevel", () => {
@@ -108,7 +110,7 @@ shop1.events.on("loadnextlevel", () => {
 
     engine.add(player);
     player.setIsEnabled(engine, true);
-  }, 1500);
+  }, SCENE_FADE_OUT_TIME + 100);
 });
 
 kitchen2.events.on("loadnextcombatlevel", () => {
@@ -119,7 +121,7 @@ kitchen2.events.on("loadnextcombatlevel", () => {
 
     engine.add(player);
     player.setIsEnabled(engine, true);
-  }, 1500);
+  }, SCENE_FADE_OUT_TIME + 100);
 });
 
 vampireLevel1.events.on("loadnextlevel", () => {
@@ -129,7 +131,8 @@ vampireLevel1.events.on("loadnextlevel", () => {
     vampireLevel1.clear();
 
     player.showCoinHud(engine);
-  }, 1500);
+    player.setIsEnabled(engine, false);
+  }, SCENE_FADE_OUT_TIME + 100);
 });
 
 shop2.events.on("loadnextlevel", () => {
@@ -140,7 +143,7 @@ shop2.events.on("loadnextlevel", () => {
 
     engine.add(player);
     player.setIsEnabled(engine, true);
-  }, 1500);
+  }, SCENE_FADE_OUT_TIME + 100);
 });
 
 kitchen3.events.on("loadnextcombatlevel", () => {
@@ -151,7 +154,7 @@ kitchen3.events.on("loadnextcombatlevel", () => {
 
     engine.add(player);
     player.setIsEnabled(engine, true);
-  }, 1500);
+  }, SCENE_FADE_OUT_TIME + 100);
 });
 
 vampireLevel2.events.on("loadnextlevel", () => {
@@ -161,7 +164,8 @@ vampireLevel2.events.on("loadnextlevel", () => {
     vampireLevel2.clear();
 
     player.showCoinHud(engine);
-  }, 1500);
+    player.setIsEnabled(engine, false);
+  }, SCENE_FADE_OUT_TIME + 100);
 });
 
 shop3.events.on("loadnextlevel", () => {
@@ -172,7 +176,7 @@ shop3.events.on("loadnextlevel", () => {
 
     engine.add(player);
     player.setIsEnabled(engine, true);
-  }, 1500);
+  }, SCENE_FADE_OUT_TIME + 100);
 });
 
 kitchen4.events.on("loadnextcombatlevel", () => {
@@ -183,7 +187,7 @@ kitchen4.events.on("loadnextcombatlevel", () => {
 
     engine.add(player);
     player.setIsEnabled(engine, true);
-  }, 1500);
+  }, SCENE_FADE_OUT_TIME + 100);
 });
 
 vampireLevel3.events.on("loadnextlevel", () => {
@@ -193,7 +197,8 @@ vampireLevel3.events.on("loadnextlevel", () => {
     vampireLevel3.clear();
 
     player.showCoinHud(engine);
-  }, 1500);
+    player.setIsEnabled(engine, false);
+  }, SCENE_FADE_OUT_TIME + 100);
 });
 
 shop4.events.on("loadnextlevel", () => {
@@ -204,7 +209,7 @@ shop4.events.on("loadnextlevel", () => {
 
     engine.add(player);
     player.setIsEnabled(engine, true);
-  }, 1500);
+  }, SCENE_FADE_OUT_TIME + 100);
 });
 
 kitchen5.events.on("loadnextcombatlevel", () => {
@@ -222,7 +227,9 @@ engine.on("visible", () => {
 
 // Start the engine
 engine.start(loader).then(() => {
-  engine.start("kitchen1");
+  engine.start("kitchen1").then(() => {
+    player.setIsEnabled(engine, true);
+  });
 });
 
 // For test hook

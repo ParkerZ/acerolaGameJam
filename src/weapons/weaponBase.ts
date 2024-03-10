@@ -1,6 +1,7 @@
 import * as ex from "excalibur";
 import { ProjectileBase } from "./projectiles/projectileBase";
 import { ProjectileKnife } from "./projectiles/projectileKnife";
+import { getElapsedTime } from "../util";
 
 export class WeaponBase extends ex.Actor {
   protected cooldownMS: number;
@@ -10,6 +11,7 @@ export class WeaponBase extends ex.Actor {
   protected movementPenalty: number;
   protected numProjectiles: number;
   protected spreadTotalAngleRadians: number;
+  protected lastAttackTime?: Date;
 
   constructor({
     cooldownMS,
@@ -50,6 +52,8 @@ export class WeaponBase extends ex.Actor {
       return;
     }
 
+    this.lastAttackTime = new Date();
+
     this.nearCooldownEnd = false;
     this.onCooldown = true;
 
@@ -70,13 +74,13 @@ export class WeaponBase extends ex.Actor {
       engine.add(projectile);
     }
 
-    engine.clock.schedule(() => {
-      this.onCooldown = false;
-    }, this.cooldownMS);
+    // engine.clock.schedule(() => {
+    //   this.onCooldown = false;
+    // }, this.cooldownMS);
 
-    engine.clock.schedule(() => {
-      this.nearCooldownEnd = true;
-    }, (this.cooldownMS * 3) / 4);
+    // engine.clock.schedule(() => {
+    //   this.nearCooldownEnd = true;
+    // }, (this.cooldownMS * 3) / 4);
   }
 
   public getIsAttacking(): boolean {
@@ -85,5 +89,22 @@ export class WeaponBase extends ex.Actor {
 
   public getMovementPenalty(): number {
     return this.movementPenalty;
+  }
+
+  onPreUpdate(engine: ex.Engine<any>, delta: number): void {
+    if (!this.onCooldown || !this.lastAttackTime) {
+      return;
+    }
+
+    const elapsedTime = getElapsedTime(this.lastAttackTime);
+
+    if (elapsedTime >= this.cooldownMS) {
+      this.onCooldown = false;
+      return;
+    }
+
+    if (elapsedTime >= (3 * this.cooldownMS) / 4) {
+      this.nearCooldownEnd = true;
+    }
   }
 }

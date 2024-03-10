@@ -1,13 +1,13 @@
 import * as ex from "excalibur";
 import { HoldableItem } from "./holdableItem";
-import { mainSpriteSheet } from "../resources";
+import { plateSprite } from "../resources";
 import { FoodBase } from "./foodItems/foodBase";
 import { FoodType } from "../types";
 
 export class Plate extends HoldableItem {
-  sprite = mainSpriteSheet.getSprite(24, 7)?.clone() as ex.Sprite;
+  sprite = plateSprite;
   private contents: Set<FoodType> = new Set();
-  private contentSprites: ex.Graphic[] = [];
+  private contentSprites: { graphic: ex.Graphic; type: FoodType }[] = [];
 
   constructor({ x, y }: { x: number; y: number }) {
     super({ x, y });
@@ -31,8 +31,8 @@ export class Plate extends HoldableItem {
         offset: ex.Vector.Zero,
       },
     ];
-    this.contentSprites.forEach((sprite) =>
-      members.push({ graphic: sprite as ex.Sprite, offset: ex.Vector.Zero })
+    this.contentSprites.forEach(({ graphic }) =>
+      members.push({ graphic: graphic as ex.Sprite, offset: ex.Vector.Zero })
     );
 
     this.graphics.use(new ex.GraphicsGroup({ members }));
@@ -44,9 +44,18 @@ export class Plate extends HoldableItem {
       // Check that plate doesn't have this item already
       if (!this.contents.has(item.getFoodType())) {
         this.contents.add(item.getFoodType());
-        const itemSprite = item.getSprite();
+        const itemSprite = item.getChoppedSprite();
         if (itemSprite) {
-          this.contentSprites.push(itemSprite);
+          this.contentSprites.push({
+            graphic: itemSprite,
+            type: item.getFoodType(),
+          });
+          this.contentSprites = this.contentSprites.sort((foodA, foodB) => {
+            if (foodA.type < foodB.type) {
+              return -1;
+            }
+            return 1;
+          });
           this.updateGraphics();
         }
         item.kill();

@@ -21,3 +21,7 @@ export function shuffleArray<T>(array: T[]): T[] {
 export function selectRandom<T>(array: T[]): T {
   return shuffleArray(array)[0];
 }
+
+export function getElapsedTime(since: Date) {
+  return Date.now() - since.valueOf();
+}

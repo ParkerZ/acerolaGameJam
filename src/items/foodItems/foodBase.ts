@@ -26,13 +26,15 @@ export class FoodBase extends HoldableItem {
       z: 2,
       maxVal: 0,
       size: "sm",
-      color: ex.Color.Green,
+      color: ex.Color.fromHex("#6eaa78"),
     });
   }
 
   public setPos(val: ex.Vector) {
     super.setPos(val);
-    this.statusBar.setPos(ex.vec(this.pos.x, this.pos.y + 20));
+    if (this.isStatusShowing) {
+      this.statusBar.setPos(ex.vec(this.pos.x, this.pos.y + 20));
+    }
   }
 
   public getIsChopped() {
@@ -47,12 +49,13 @@ export class FoodBase extends HoldableItem {
     return this.foodType;
   }
 
-  public getSprite(): ex.Graphic | undefined {
-    return this.sprite;
+  public getChoppedSprite(): ex.Graphic | undefined {
+    return this.choppedSprite;
   }
 
   public onHit(damage: number, _knockBackForce: ex.Vector) {
     this.health -= damage;
+    this.statusBar.setPos(ex.vec(this.pos.x, this.pos.y + 20));
     this.statusBar.setCurrVal(Math.max(this.health, 0));
 
     if (this.health <= 0 && this.choppedSprite) {
@@ -62,7 +65,11 @@ export class FoodBase extends HoldableItem {
   }
 
   onPreUpdate(engine: ex.Engine<any>, delta: number): void {
-    if (this.health !== this.maxHealth && !this.isStatusShowing) {
+    if (
+      this.health > 0 &&
+      this.health !== this.maxHealth &&
+      !this.isStatusShowing
+    ) {
       this.isStatusShowing = true;
       engine.add(this.statusBar);
     }
