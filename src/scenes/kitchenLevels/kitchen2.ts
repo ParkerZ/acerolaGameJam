@@ -48,19 +48,16 @@ export class Kitchen2 extends KitchenBase {
       new Crate({
         x: engine.halfDrawWidth - COUNTER_WIDTH * 2,
         y: engine.halfDrawHeight + COUNTER_WIDTH * 2,
-        rotation: Math.PI,
         Food: Food1,
       }),
       new Crate({
         x: engine.halfDrawWidth - COUNTER_WIDTH * 1,
         y: engine.halfDrawHeight + COUNTER_WIDTH * 2,
-        rotation: Math.PI,
         Food: Food2,
       }),
       new Crate({
         x: engine.halfDrawWidth + COUNTER_WIDTH * 0,
         y: engine.halfDrawHeight + COUNTER_WIDTH * 2,
-        rotation: Math.PI,
         Food: Food3,
       }),
       new Trash({
@@ -69,6 +66,40 @@ export class Kitchen2 extends KitchenBase {
         rotation: Math.PI,
       }),
     ];
+
+    this.counterCollider = new ex.Actor({
+      collider: new ex.CompositeCollider([
+        ex.Shape.Box(
+          64,
+          64 * 2,
+          ex.Vector.Zero,
+          ex.vec(
+            engine.halfDrawWidth - COUNTER_WIDTH * 2 - 32,
+            engine.halfDrawHeight - COUNTER_WIDTH * 2 - 32
+          )
+        ),
+        ex.Shape.Box(
+          64,
+          64 * 2,
+          ex.Vector.Zero,
+          ex.vec(
+            engine.halfDrawWidth + COUNTER_WIDTH * 2 - 32,
+            engine.halfDrawHeight - COUNTER_WIDTH * 2 - 32
+          )
+        ),
+        ex.Shape.Box(
+          64 * 5,
+          64 * 63,
+          ex.Vector.Zero,
+          ex.vec(
+            engine.halfDrawWidth - COUNTER_WIDTH * 2 - 32,
+            engine.halfDrawHeight + COUNTER_WIDTH * 2 - 32
+          )
+        ),
+      ]),
+      collisionType: ex.CollisionType.Fixed,
+      anchor: ex.Vector.Half,
+    });
 
     const foods: FoodType[] = ["food2", "food3"];
     const createDish = () => {

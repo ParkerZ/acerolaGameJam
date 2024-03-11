@@ -3,6 +3,7 @@ import { ProjectileBase } from "../../weapons/projectiles/projectileBase";
 import { HoldableItem } from "../holdableItem";
 import { FoodType } from "../../types";
 import { StatusBar } from "../../statusBar";
+import { COLORS } from "../../constants";
 
 export class FoodBase extends HoldableItem {
   protected choppedSprite?: ex.Graphic;
@@ -26,7 +27,8 @@ export class FoodBase extends HoldableItem {
       z: 2,
       maxVal: 0,
       size: "sm",
-      color: ex.Color.fromHex("#6eaa78"),
+      color: COLORS.green,
+      complementaryColor: COLORS.greenLight,
     });
   }
 

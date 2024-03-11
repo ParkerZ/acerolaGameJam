@@ -11,6 +11,8 @@ import { StickyEnemy1 } from "./stickyEnemy1";
 import { EnemyBase } from "./enemyBase";
 import { CombinedEnemy1 } from "./combinedEnemy1";
 import { shuffleArray } from "../util";
+import { EnemyDiedEvent } from "../types";
+import { ActorEvents } from "excalibur/build/dist/Actor";
 
 const halfX = 500;
 const halfY = 400;
@@ -34,6 +36,10 @@ const spawnPoints = [
 ];
 
 export class EnemySpawner extends ex.Actor {
+  public events = new ex.EventEmitter<
+    ActorEvents & { enemydied: EnemyDiedEvent }
+  >();
+
   private Enemy: typeof Enemy1;
   private target: Player;
   private spawnRateMs: number;
@@ -204,6 +210,7 @@ export class EnemySpawner extends ex.Actor {
       }
 
       this.enemies.splice(enemyToRemove, 1);
+      this.events.emit("enemydied");
     });
   }
 

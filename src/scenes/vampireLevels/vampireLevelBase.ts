@@ -7,7 +7,7 @@ import {
 import { Player } from "../../player";
 import { NextLevelEvent } from "../../types";
 import { PlayerCameraMount } from "../../playerCameraMount";
-import { COUNTER_WIDTH } from "../../constants";
+import { COLORS, COUNTER_WIDTH } from "../../constants";
 import { Wall } from "../../wall";
 import { StatusBar } from "../../statusBar";
 import { EnemySpawner } from "../../enemies/enemySpawner";
@@ -25,9 +25,12 @@ export class VampireLevelBase extends ex.Scene {
   protected timerBar: StatusBar;
   protected startTime: Date;
   protected isEnabled: boolean = false;
+  protected initialCoins: number = 0;
+  protected numEnemiesKilled: number = 0;
 
   private walls: Wall[] = [];
   private floors: ex.Actor[] = [];
+  private bg?: ex.Actor;
 
   constructor({
     player,
@@ -48,13 +51,16 @@ export class VampireLevelBase extends ex.Scene {
       z: 2,
       maxVal: timerMs,
       size: "thin",
-      color: ex.Color.fromHex("#416aa3"),
+      color: COLORS.blue,
+      complementaryColor: COLORS.blueLight,
     });
 
     this.startTime = new Date();
   }
 
   onInitialize(engine: ex.Engine<any>): void {
+    this.initialCoins = this.player.getCoins();
+
     this.timerBar.setPos(
       ex.vec(engine.halfDrawWidth, (engine.halfDrawHeight * 6) / 100)
     );
@@ -78,6 +84,9 @@ export class VampireLevelBase extends ex.Scene {
     this.camera.strategy.elasticToActor(cameraMount, 0.05, 0.1);
 
     engine.add(this.spawner);
+    this.spawner.events.on("enemydied", () => {
+      this.numEnemiesKilled++;
+    });
   }
 
   onPreUpdate(engine: ex.Engine<any>, delta: number): void {
@@ -90,11 +99,15 @@ export class VampireLevelBase extends ex.Scene {
     if (elapsedTime >= this.timerMs) {
       this.isEnabled = false;
       this.cleanupSpawner(engine);
-      this.events.emit("loadnextlevel");
+      this.onLoadNextLevel(engine);
       return;
     }
 
     this.timerBar.setCurrVal(Math.max(this.timerMs - elapsedTime, 0));
+  }
+
+  protected onLoadNextLevel(engine: ex.Engine<any>) {
+    this.events.emit("loadnextlevel");
   }
 
   protected cleanupSpawner(engine: ex.Engine<any>): void {
@@ -104,37 +117,38 @@ export class VampireLevelBase extends ex.Scene {
 
   private addWalls(engine: ex.Engine<any>) {
     const graphicOffset = ex.vec(64 * 6 - 16, 64 * 4 + 13);
-    const bg = new ex.Actor({
+
+    this.bg = new ex.Actor({
       x: 0,
       y: 0,
       z: -1,
       anchor: ex.Vector.Half,
     });
-    bg.graphics.use(vampireBgSprite, { offset: graphicOffset });
-    engine.add(bg);
+    this.bg.graphics.use(vampireBgSprite, { offset: graphicOffset });
+    engine.add(this.bg);
 
     const wallCollider = new ex.CompositeCollider([
       ex.Shape.Box(
         2368,
         64,
         ex.Vector.Half,
-        ex.vec(engine.halfDrawWidth, engine.halfDrawHeight - 64 * 18.5)
+        ex.vec(engine.halfDrawWidth, engine.halfDrawHeight - 64 * 18 + 7)
       ),
       ex.Shape.Box(
         2368,
         64,
         ex.Vector.Half,
-        ex.vec(engine.halfDrawWidth, engine.halfDrawHeight + 64 * 17.5)
+        ex.vec(engine.halfDrawWidth, engine.halfDrawHeight + 64 * 17 + 7)
       ),
       ex.Shape.Box(
         64,
-        2368,
+        2368 - 64,
         ex.Vector.Half,
         ex.vec(engine.halfDrawWidth + 64 * 17.5, engine.halfDrawHeight)
       ),
       ex.Shape.Box(
         64,
-        2368,
+        2368 - 64,
         ex.Vector.Half,
         ex.vec(engine.halfDrawWidth - 64 * 18.5, engine.halfDrawHeight)
       ),
@@ -152,22 +166,29 @@ export class VampireLevelBase extends ex.Scene {
 
     this.events.on("deactivate", () => {
       this.player = new Player({ x: 0, y: 0 });
-      bg.kill();
       walls.kill();
-      engine.remove(bg);
       engine.remove(walls);
     });
   }
 
   onDeactivate(context: ex.SceneActivationContext<undefined>): void {
+    this.cleanup(context.engine);
+  }
+
+  protected cleanup(engine: ex.Engine<any>) {
     this.walls.forEach((wall) => {
       wall.kill();
-      context.engine.remove(wall);
+      engine.remove(wall);
     });
 
     this.floors.forEach((floor) => {
       floor.kill();
-      context.engine.remove(floor);
+      engine.remove(floor);
     });
+
+    if (this.bg) {
+      this.bg.kill();
+      engine.remove(this.bg);
+    }
   }
 }

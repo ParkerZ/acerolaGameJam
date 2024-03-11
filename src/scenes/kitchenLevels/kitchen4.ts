@@ -43,27 +43,84 @@ export class Kitchen4 extends KitchenBase {
       new Crate({
         x: engine.halfDrawWidth - COUNTER_WIDTH * 2,
         y: engine.halfDrawHeight + COUNTER_WIDTH * 2,
-        rotation: Math.PI,
         Food: Food1,
       }),
       new Crate({
         x: engine.halfDrawWidth + COUNTER_WIDTH * 0,
         y: engine.halfDrawHeight + COUNTER_WIDTH * 2,
-        rotation: Math.PI,
         Food: Food2,
       }),
       new Crate({
         x: engine.halfDrawWidth + COUNTER_WIDTH * 2,
         y: engine.halfDrawHeight + COUNTER_WIDTH * 2,
-        rotation: Math.PI,
         Food: Food3,
       }),
       new Trash({
         x: engine.halfDrawWidth + COUNTER_WIDTH * 2,
         y: engine.halfDrawHeight - COUNTER_WIDTH * 2,
-        rotation: 0,
       }),
     ];
+
+    this.counterCollider = new ex.Actor({
+      collider: new ex.CompositeCollider([
+        ex.Shape.Box(
+          64,
+          64,
+          ex.Vector.Zero,
+          ex.vec(
+            engine.halfDrawWidth - COUNTER_WIDTH * 2 - 32,
+            engine.halfDrawHeight - COUNTER_WIDTH * 2 - 32
+          )
+        ),
+        ex.Shape.Box(
+          64,
+          64,
+          ex.Vector.Zero,
+          ex.vec(
+            engine.halfDrawWidth + COUNTER_WIDTH * 2 - 32,
+            engine.halfDrawHeight - COUNTER_WIDTH * 2 - 32
+          )
+        ),
+        ex.Shape.Box(
+          64 * 3,
+          64,
+          ex.Vector.Zero,
+          ex.vec(
+            engine.halfDrawWidth - COUNTER_WIDTH * 1 - 32,
+            engine.halfDrawHeight - COUNTER_WIDTH * 0 - 32
+          )
+        ),
+        ex.Shape.Box(
+          64,
+          64,
+          ex.Vector.Zero,
+          ex.vec(
+            engine.halfDrawWidth - COUNTER_WIDTH * 2 - 32,
+            engine.halfDrawHeight + COUNTER_WIDTH * 2 - 32
+          )
+        ),
+        ex.Shape.Box(
+          64,
+          64,
+          ex.Vector.Zero,
+          ex.vec(
+            engine.halfDrawWidth + COUNTER_WIDTH * 0 - 32,
+            engine.halfDrawHeight + COUNTER_WIDTH * 2 - 32
+          )
+        ),
+        ex.Shape.Box(
+          64,
+          64,
+          ex.Vector.Zero,
+          ex.vec(
+            engine.halfDrawWidth + COUNTER_WIDTH * 2 - 32,
+            engine.halfDrawHeight + COUNTER_WIDTH * 2 - 32
+          )
+        ),
+      ]),
+      collisionType: ex.CollisionType.Fixed,
+      anchor: ex.Vector.Half,
+    });
 
     const foods: FoodType[] = ["food2", "food3"];
     const createDish = () => {

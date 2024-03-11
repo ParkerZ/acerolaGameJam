@@ -1,5 +1,5 @@
 import * as ex from "excalibur";
-import { mainSpriteSheet } from "./resources";
+import { coinSprite, mainSpriteSheet } from "./resources";
 
 export class CoinHud extends ex.ScreenElement {
   private numCoins: number = 0;
@@ -27,7 +27,7 @@ export class CoinHud extends ex.ScreenElement {
       color: ex.Color.White,
     });
 
-    const icon = mainSpriteSheet.getSprite(19, 10)?.clone() as ex.Sprite;
+    const icon = coinSprite;
 
     const text = new ex.Text({
       text: this.numCoins.toString(),

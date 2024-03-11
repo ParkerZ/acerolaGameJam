@@ -1,5 +1,5 @@
 import * as ex from "excalibur";
-import { mainSpriteSheet } from "../resources";
+import { deliveryStationSprite, mainSpriteSheet } from "../resources";
 import { CounterBase } from "./counterBase";
 import { HoldableItem } from "../items/holdableItem";
 import { Plate } from "../items/plate";
@@ -23,7 +23,7 @@ export class DeliveryStation extends CounterBase {
     super({
       x,
       y,
-      sprite: mainSpriteSheet.getSprite(4, 19)?.clone() as ex.Sprite,
+      sprite: deliveryStationSprite,
       rotation,
     });
   }

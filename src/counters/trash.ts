@@ -1,5 +1,5 @@
 import * as ex from "excalibur";
-import { mainSpriteSheet } from "../resources";
+import { trashSprite } from "../resources";
 import { CounterBase } from "./counterBase";
 import { HoldableItem } from "../items/holdableItem";
 
@@ -7,7 +7,7 @@ export class Trash extends CounterBase {
   constructor({
     x,
     y,
-    rotation = Math.PI / 2,
+    rotation = 0,
   }: {
     x: number;
     y: number;
@@ -16,7 +16,7 @@ export class Trash extends CounterBase {
     super({
       x,
       y,
-      sprite: mainSpriteSheet.getSprite(26, 11)?.clone() as ex.Sprite,
+      sprite: trashSprite,
       rotation,
     });
   }

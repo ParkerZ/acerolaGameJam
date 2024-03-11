@@ -75,6 +75,7 @@ export class EnemyBase extends ex.Actor {
       maxVal: this.maxHealth,
       size: "sm",
       color: ex.Color.fromHex("#6eaa78"),
+      complementaryColor: ex.Color.fromHex("#c5ccb8"),
     });
   }
 
@@ -125,7 +126,22 @@ export class EnemyBase extends ex.Actor {
     }
 
     const direction = this.pos.sub(this.target.pos);
-    this.sprite.rotation = Math.atan2(direction.x, -direction.y);
+    if (
+      direction.sub(ex.Vector.Right).size > direction.sub(ex.Vector.Left).size
+    ) {
+      this.sprite.flipVertical = false;
+      this.sprite.rotation =
+        Math.atan2(direction.x, -direction.y) + Math.PI / 2;
+    } else {
+      this.sprite.flipVertical = true;
+      this.sprite.rotation =
+        Math.atan2(direction.x, -direction.y) + Math.PI / 2;
+    }
+
+    // const x = ex.Vector.Right;
+    // const y = ex.Vector.Left;
+    // const rotation = Math.atan2(direction.x, -direction.y) + Math.PI / 2;
+    // this.sprite.rotation = Math.atan2(direction.x, -direction.y) + Math.PI / 2;
 
     const intendedVel = this.target.pos
       .sub(this.pos)

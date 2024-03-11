@@ -1,5 +1,5 @@
 import * as ex from "excalibur";
-import { counterSprite } from "../resources";
+import { crateSprite } from "../resources";
 import { CounterBase } from "./counterBase";
 import { FoodBase } from "../items/foodItems/foodBase";
 
@@ -10,16 +10,16 @@ export class Crate extends CounterBase {
     x,
     y,
     Food,
-    rotation,
+    rotation = 0,
   }: {
     x: number;
     y: number;
     Food: typeof FoodBase;
-    rotation: number;
+    rotation?: number;
   }) {
     const graphicMembers = [
       {
-        graphic: counterSprite,
+        graphic: crateSprite,
         offset: ex.Vector.Zero,
       },
     ];

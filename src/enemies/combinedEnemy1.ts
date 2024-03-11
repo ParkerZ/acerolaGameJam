@@ -3,7 +3,7 @@ import { EnemyBase } from "./enemyBase";
 import { Player } from "../player";
 import { ATTACK_FORCE, ATTACK_RANGE, DAMAGE, SPEED } from "./enemy1";
 import { CoinPickup } from "../items/coinPickup";
-import { mainSpriteSheet } from "../resources";
+import { lettuceSprite, mainSpriteSheet } from "../resources";
 
 export class CombinedEnemy1 extends EnemyBase {
   constructor({
@@ -30,7 +30,7 @@ export class CombinedEnemy1 extends EnemyBase {
       maxHealth: health,
       attackRange: ATTACK_RANGE,
       attackForce: ATTACK_FORCE,
-      sprite: mainSpriteSheet.getSprite(18, 8)?.clone() as ex.Sprite,
+      sprite: lettuceSprite.clone(),
       Pickup: CoinPickup,
     });
   }

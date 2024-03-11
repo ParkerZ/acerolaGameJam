@@ -5,6 +5,7 @@ import {
   mainSpriteSheet,
   cucumberSprite,
   tomatoSprite,
+  chefSprite,
 } from "./resources";
 
 export const COUNTER_WIDTH = 64;
@@ -21,7 +22,18 @@ export const FOOD_TYPE_SPRITE_MAP: Record<FoodType, ex.Sprite> = {
   food1: lettuceSprite,
   food2: tomatoSprite,
   food3: cucumberSprite,
-  invalid: mainSpriteSheet.getSprite(25, 4)?.clone() as ex.Sprite,
+  invalid: chefSprite,
 };
 
 export const SCENE_FADE_OUT_TIME = 500;
+
+export const COLORS = {
+  red: ex.Color.fromHex("#9a4f50"),
+  redLight: ex.Color.fromHex("#c38890"),
+  blue: ex.Color.fromHex("#416aa3"),
+  blueLight: ex.Color.fromHex("#7ca1c0"),
+  green: ex.Color.fromHex("#6eaa78"),
+  greenLight: ex.Color.fromHex("#c5ccb8"),
+  gray: ex.Color.fromHex("#b8b8b4"),
+  purple: ex.Color.fromHex("#433455"),
+};

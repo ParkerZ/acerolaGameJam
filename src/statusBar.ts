@@ -1,4 +1,5 @@
 import * as ex from "excalibur";
+import { COLORS } from "./constants";
 
 type Size = "sm" | "md" | "lg" | "thin";
 
@@ -27,16 +28,19 @@ class InnerBar extends ex.ScreenElement {
   protected barWidth: number;
   protected barWidthMax: number;
   protected barHeight: number;
+  protected complementaryColor: ex.Color;
 
   constructor({
     width,
     height,
     color,
+    complementaryColor,
     z,
   }: {
     width: number;
     height: number;
     color: ex.Color;
+    complementaryColor: ex.Color;
     z: number;
   }) {
     super({
@@ -47,6 +51,7 @@ class InnerBar extends ex.ScreenElement {
     this.barWidthMax = width;
     this.barHeight = height;
     this.color = color;
+    this.complementaryColor = complementaryColor;
   }
 
   public onInitialize(engine: ex.Engine<any>): void {
@@ -56,6 +61,15 @@ class InnerBar extends ex.ScreenElement {
         this.barWidth,
         this.barHeight,
         this.color
+      );
+      gfx.drawRectangle(
+        ex.vec(
+          -this.barWidthMax / 2,
+          -this.barHeight / 2 + (4 * this.barHeight) / 5
+        ),
+        this.barWidth,
+        this.barHeight / 5,
+        this.complementaryColor
       );
     };
   }
@@ -80,7 +94,8 @@ export class StatusBar extends ex.ScreenElement {
     z = 1,
     maxVal,
     size = "md",
-    color = ex.Color.Red,
+    color = ex.Color.fromHex("#9a4f50"),
+    complementaryColor = ex.Color.fromHex("#c38890"),
   }: {
     x: number;
     y: number;
@@ -88,6 +103,7 @@ export class StatusBar extends ex.ScreenElement {
     maxVal: number;
     size?: Size;
     color?: ex.Color;
+    complementaryColor?: ex.Color;
   }) {
     super({
       x,
@@ -107,6 +123,7 @@ export class StatusBar extends ex.ScreenElement {
       width: this.barWidth,
       height: this.barHeight,
       color: this.barColor,
+      complementaryColor: complementaryColor,
       z,
     });
   }
@@ -146,7 +163,7 @@ export class StatusBar extends ex.ScreenElement {
             graphic: new ex.Rectangle({
               height: this.barHeight - 2,
               width: this.barWidth - 2,
-              color: ex.Color.LightGray,
+              color: COLORS.gray,
             }),
             offset: ex.vec(this.outlineWeight + 1, this.outlineWeight + 1),
           },

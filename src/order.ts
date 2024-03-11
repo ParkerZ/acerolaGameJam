@@ -1,6 +1,7 @@
 import * as ex from "excalibur";
 import { FoodType, OrderExpiredEvent } from "./types";
 import {
+  COLORS,
   FOOD_TYPE_SPRITE_MAP,
   ORDER_DAMAGE,
   ORDER_TIMEOUT_MS,
@@ -46,7 +47,8 @@ export class Order extends ex.ScreenElement {
       x: 0,
       y: 0,
       maxVal: this.waitTimeMs,
-      color: ex.Color.fromHex("#416aa3"),
+      color: COLORS.blue,
+      complementaryColor: COLORS.blueLight,
     });
     this.startTime = new Date();
   }

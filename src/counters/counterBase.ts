@@ -1,10 +1,18 @@
 import * as ex from "excalibur";
 import { HoldableItem } from "../items/holdableItem";
+import { COLORS } from "../constants";
+import { counterOutlineSprite } from "../resources";
 
 export abstract class CounterBase extends ex.Actor {
   private sprite: ex.Graphic;
   protected heldItem?: HoldableItem;
   private activeActor?: ex.Actor;
+  private blockingCollider: ex.Collider = ex.Shape.Box(
+    63,
+    58,
+    ex.Vector.Half,
+    ex.vec(0, 1)
+  );
 
   constructor({
     x,
@@ -23,19 +31,24 @@ export abstract class CounterBase extends ex.Actor {
       z: 2,
       rotation,
       collisionType: ex.CollisionType.Passive,
-      collisionGroup: ex.CollisionGroupManager.groupByName("counter"),
-      collider: ex.Shape.Capsule(72, 72),
+      collider: ex.Shape.Capsule(74, 74),
     });
 
     this.sprite = sprite;
   }
 
+  public getBlockingCollider() {
+    return this.blockingCollider;
+  }
+
+  public getPos() {
+    return this.pos;
+  }
+
   public setActive(engine: ex.Engine<any>, val: boolean) {
     if (val) {
       this.activeActor = new ex.Actor({ pos: this.pos, z: -1 });
-      this.activeActor.graphics.use(
-        new ex.Circle({ radius: 36, color: ex.Color.Green })
-      );
+      this.activeActor.graphics.use(counterOutlineSprite);
       engine.add(this.activeActor);
       return;
     }
@@ -49,14 +62,6 @@ export abstract class CounterBase extends ex.Actor {
 
   onInitialize(engine: ex.Engine<any>): void {
     this.graphics.use(this.sprite);
-
-    const counterBox = new ex.Actor({
-      pos: this.pos,
-      collisionType: ex.CollisionType.Fixed,
-      collider: ex.Shape.Box(63, 58, ex.Vector.Half, ex.vec(0, 1)),
-    });
-
-    engine.add(counterBox);
   }
 
   // Methods to invoke when player interacts with counter

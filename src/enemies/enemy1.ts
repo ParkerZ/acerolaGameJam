@@ -2,7 +2,7 @@ import * as ex from "excalibur";
 import { EnemyBase } from "./enemyBase";
 import { Player } from "../player";
 import { CoinPickup } from "../items/coinPickup";
-import { mainSpriteSheet } from "../resources";
+import { mainSpriteSheet, tomatoSprite } from "../resources";
 import { selectRandom } from "../util";
 
 export const SPEED = 150;
@@ -31,7 +31,7 @@ export class Enemy1 extends EnemyBase {
       maxHealth: 25,
       attackRange: ATTACK_RANGE,
       attackForce: ATTACK_FORCE,
-      sprite: mainSpriteSheet.getSprite(19, 8)?.clone() as ex.Sprite,
+      sprite: tomatoSprite.clone(),
       Pickup: selectRandom([CoinPickup, undefined, undefined, undefined]),
     });
   }

@@ -25,7 +25,7 @@ export class ShopItem extends ex.ScreenElement {
     sprite: ex.Graphic;
     cost: number;
   }) {
-    super({ x, y, anchor: ex.Vector.Half });
+    super({ x, y, z: 4, anchor: ex.Vector.Half });
 
     this.Weapon = Weapon;
     this.sprite = sprite;
@@ -42,7 +42,7 @@ export class ShopItem extends ex.ScreenElement {
     const text = new ex.ScreenElement({
       pos: this.pos,
       anchor: ex.Vector.Half,
-      z: 2,
+      z: 4,
     });
 
     text.graphics.use(this.sprite, {});

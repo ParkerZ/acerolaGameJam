@@ -1,7 +1,6 @@
 import * as ex from "excalibur";
-import { mainSpriteSheet } from "../resources";
+import { coinSprite } from "../resources";
 import { Player } from "../player";
-import { getElapsedTime } from "../util";
 
 export class CoinPickup extends ex.Actor {
   private isPickedUp: boolean = false;
@@ -25,7 +24,7 @@ export class CoinPickup extends ex.Actor {
   }
 
   onInitialize(engine: ex.Engine<any>): void {
-    this.graphics.use(mainSpriteSheet.getSprite(19, 10)?.clone() as ex.Sprite);
+    this.graphics.use(coinSprite);
 
     // Delay pickup listener
     engine.clock.schedule(() => {
@@ -54,12 +53,6 @@ export class CoinPickup extends ex.Actor {
     }
 
     if (this.isEnabled) {
-      // const elapsedTime = getElapsedTime(this.lastDistanceCheck);
-
-      // if (elapsedTime < this.checkDelayMs) {
-      //   return;
-      // }
-
       if (this.pos.distance(this.target.pos) < 180) {
         this.isMagnetized = true;
         return;

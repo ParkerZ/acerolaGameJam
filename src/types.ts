@@ -8,6 +8,9 @@ import { Shotgun } from "./weapons/shotgun";
 import { Sniper } from "./weapons/sniper";
 
 export type FoodType = "food1" | "food2" | "food3" | "invalid";
+
+export type UIColor = "green" | "purple";
+
 export type WeaponType =
   | typeof Handgun
   | typeof Knife

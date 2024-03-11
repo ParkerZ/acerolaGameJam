@@ -1,5 +1,5 @@
 import * as ex from "excalibur";
-import { mainSpriteSheet } from "./resources";
+import { chefSprite, mainSpriteSheet } from "./resources";
 import { CounterBase } from "./counters/counterBase";
 import { WeaponBase } from "./weapons/weaponBase";
 import { HoldableItem } from "./items/holdableItem";
@@ -8,8 +8,9 @@ import { StatusBar } from "./statusBar";
 import { WeaponType } from "./types";
 import { FoodBase } from "./items/foodItems/foodBase";
 import { PlateRack } from "./counters/plateRack";
-import { CoinHud } from "./cointHud";
+import { CoinHud } from "./coinHud";
 import { Knife } from "./weapons/knife";
+import { COLORS } from "./constants";
 
 export class Player extends ex.Actor {
   private isEnabled = true;
@@ -51,14 +52,15 @@ export class Player extends ex.Actor {
       z: 2,
       maxVal: this.maxHealth,
       size: "lg",
-      color: ex.Color.fromHex("#9a4f50"),
+      color: COLORS.red,
+      complementaryColor: COLORS.redLight,
     });
     this.coinHud = new CoinHud({
       x: 0,
       y: 0,
     });
 
-    this.sprite = mainSpriteSheet.getSprite(25, 4)?.clone() as ex.Sprite;
+    this.sprite = chefSprite.clone();
   }
 
   public setPos(pos: ex.Vector) {
@@ -74,6 +76,7 @@ export class Player extends ex.Actor {
       }, 250);
     } else {
       this.isEnabled = val;
+      this.vel = ex.Vector.Zero;
     }
   }
 
@@ -150,6 +153,10 @@ export class Player extends ex.Actor {
     engine.add(this.coinHud);
   }
 
+  public removeHealth(engine: ex.Engine<any>) {
+    engine.remove(this.healthBar);
+  }
+
   onInitialize(engine: ex.Engine<any>): void {
     this.graphics.use(this.sprite);
 
@@ -184,6 +191,7 @@ export class Player extends ex.Actor {
     this.attackInputs = 0;
     this.targetCounter = undefined;
     this.possibleCounters = [];
+    this.weapon.setOnCooldown(false);
     engine.add(this.weapon);
   }
 

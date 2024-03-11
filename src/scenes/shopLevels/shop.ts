@@ -6,7 +6,7 @@ import { NextLevelEvent, ShopWeaponType, WeaponType } from "../../types";
 import { selectRandom } from "../../util";
 import { ShopShotgun } from "./shopItems/shopShotgun";
 import { ShopSniper } from "./shopItems/shopSniper";
-import { NextLevelButton } from "../../nextLevelButton";
+import { NextLevelButton } from "../../ui/nextLevelButton";
 import { ShopSubMachineGun } from "./shopItems/shopSubMachineGun";
 import { ShopHeavyMachineGun } from "./shopItems/shopHeavyMachineGun";
 import { ShopItem } from "./shopItems/shopItem";

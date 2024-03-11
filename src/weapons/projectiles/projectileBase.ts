@@ -40,6 +40,7 @@ export class ProjectileBase extends ex.Actor {
     super({
       x,
       y,
+      z: 2,
       rotation: Math.atan2(direction.x, -direction.y),
       collisionType: ex.CollisionType.Passive,
       collisionGroup: ex.CollisionGroupManager.groupByName("projectile"),

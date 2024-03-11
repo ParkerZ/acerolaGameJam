@@ -43,6 +43,11 @@ export class WeaponBase extends ex.Actor {
     return this.nearCooldownEnd;
   }
 
+  public setOnCooldown(val: boolean) {
+    this.onCooldown = val;
+    this.nearCooldownEnd = val;
+  }
+
   public attack(
     engine: ex.Engine<any>,
     direction: ex.Vector,
@@ -73,14 +78,6 @@ export class WeaponBase extends ex.Actor {
       });
       engine.add(projectile);
     }
-
-    // engine.clock.schedule(() => {
-    //   this.onCooldown = false;
-    // }, this.cooldownMS);
-
-    // engine.clock.schedule(() => {
-    //   this.nearCooldownEnd = true;
-    // }, (this.cooldownMS * 3) / 4);
   }
 
   public getIsAttacking(): boolean {

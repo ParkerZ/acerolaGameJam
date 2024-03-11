@@ -19,16 +19,18 @@ export class KitchenBase extends ex.Scene {
   >();
 
   private currentOrders: Order[] = [];
-  private player: Player;
+  protected player: Player;
   private isOrderingClosed: boolean = false;
   private walls: Wall[] = [];
   private floors: ex.Actor[] = [];
   private isEnabled: boolean = false;
   private lastOrderTime: Date;
 
+  protected numOrdersCleared: number = 0;
   protected ordersToDisribute: Order[] = [];
   protected counters: CounterBase[] = [];
   protected deliveryStation: DeliveryStation;
+  protected counterCollider?: ex.Actor;
 
   constructor({ player }: { player: Player }) {
     super();
@@ -61,6 +63,10 @@ export class KitchenBase extends ex.Scene {
       this.isEnabled = true;
     }, ORDER_DELAY_MS / 2);
 
+    if (this.counterCollider) {
+      engine.add(this.counterCollider);
+    }
+
     this.deliveryStation.events.on("deliveryevent", (event) => {
       const orderToClear = this.currentOrders.findIndex((o) => {
         const orderIngredients = o.getDishIngredients();
@@ -84,9 +90,10 @@ export class KitchenBase extends ex.Scene {
       engine.remove(this.currentOrders[orderToClear]);
       this.currentOrders.splice(orderToClear, 1);
       this.currentOrders.forEach((order, i) => order.setPosByIndex(i));
+      this.numOrdersCleared++;
 
       if (this.isOrderingClosed && this.currentOrders.length === 0) {
-        this.events.emit("orderscleared");
+        this.onOrdersCleared(engine);
       }
     });
   }
@@ -106,6 +113,10 @@ export class KitchenBase extends ex.Scene {
       this.distributeOrders(engine);
       this.lastOrderTime = new Date();
     }
+  }
+
+  protected onOrdersCleared(engine: ex.Engine<any>) {
+    this.events.emit("orderscleared");
   }
 
   private addWalls(engine: ex.Engine<any>) {
@@ -194,7 +205,7 @@ export class KitchenBase extends ex.Scene {
 
         if (this.isOrderingClosed && this.currentOrders.length === 0) {
           this.player.setIsEnabled(engine, false);
-          this.events.emit("orderscleared");
+          this.onOrdersCleared(engine);
         }
       }
     });
@@ -208,39 +219,53 @@ export class KitchenBase extends ex.Scene {
   }
 
   onDeactivate(context: ex.SceneActivationContext<undefined>): void {
+    this.cleanup(context.engine);
+  }
+
+  protected cleanup(engine: ex.Engine<any>) {
+    this.player.setIsEnabled(engine, false);
+    this.player.removeHealth(engine);
+    this.player.kill();
+    engine.remove(this.player);
+
     this.currentOrders.forEach((order) => {
       order.events.clear();
       order.kill();
-      context.engine.remove(order);
+      engine.remove(order);
     });
 
     this.ordersToDisribute.forEach((order) => {
       order.kill();
-      context.engine.remove(order);
+      engine.remove(order);
     });
 
     this.counters.forEach((counter) => {
       counter.kill();
-      context.engine.remove(counter);
+      engine.remove(counter);
     });
 
     this.deliveryStation.events.clear();
     this.deliveryStation.kill();
-    context.engine.remove(this.deliveryStation);
+    engine.remove(this.deliveryStation);
 
     this.walls.forEach((wall) => {
       wall.kill();
-      context.engine.remove(wall);
+      engine.remove(wall);
     });
 
     this.floors.forEach((floor) => {
       floor.kill();
-      context.engine.remove(floor);
+      engine.remove(floor);
     });
 
     this.counters.forEach((counter) => {
       counter.kill();
-      context.engine.remove(counter);
+      engine.remove(counter);
     });
+
+    if (this.counterCollider) {
+      this.counterCollider.kill();
+      engine.remove(this.counterCollider);
+    }
   }
 }
