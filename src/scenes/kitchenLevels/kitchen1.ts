@@ -14,6 +14,7 @@ import { FoodType } from "../../types";
 import { KitchenModal } from "../../ui/kitchenModal";
 import { ShopHandgun } from "../shopLevels/shopItems/shopHandgun";
 import { ShopHeavyMachineGun } from "../shopLevels/shopItems/shopHeavyMachineGun";
+import { ShopSubMachineGun } from "../shopLevels/shopItems/shopSubMachineGun";
 
 export class Kitchen1 extends KitchenBase {
   private initialCoins: number = 0;

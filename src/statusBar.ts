@@ -77,6 +77,11 @@ class InnerBar extends ex.ScreenElement {
   public setBarWidth(val: number) {
     this.barWidth = Math.max(val, 0);
   }
+
+  public setColors(color: ex.Color, complement: ex.Color) {
+    this.color = color;
+    this.complementaryColor = complement;
+  }
 }
 
 export class StatusBar extends ex.ScreenElement {
@@ -141,6 +146,10 @@ export class StatusBar extends ex.ScreenElement {
   public setCurrVal(val: number) {
     this.currVal = val;
     this.updateGraphics();
+  }
+
+  public setColors(color: ex.Color, complement: ex.Color) {
+    this.innerBar.setColors(color, complement);
   }
 
   public registerInnerBar(engine: ex.Engine<any>) {

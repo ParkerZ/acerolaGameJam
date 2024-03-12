@@ -176,6 +176,10 @@ export class VampireLevelBase extends ex.Scene {
   }
 
   protected cleanup(engine: ex.Engine<any>) {
+    this.player.setIsEnabled(engine, false);
+    this.player.kill();
+    engine.remove(this.player);
+
     this.walls.forEach((wall) => {
       wall.kill();
       engine.remove(wall);

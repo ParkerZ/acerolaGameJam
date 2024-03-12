@@ -10,7 +10,7 @@ import {
 
 export const COUNTER_WIDTH = 64;
 export const ORDER_TIMEOUT_MS = 27000; // 17000
-export const ORDER_DELAY_MS = 6000; // 4600
+export const ORDER_DELAY_MS = 5500; // 6000; // 4600
 export const ORDER_DAMAGE = 25; // 34
 
 export const MIN_X_SPAWN = -700;

@@ -159,9 +159,6 @@ export class Kitchen5 extends KitchenBase {
       new Order({
         dish: new Set(createDish()),
       }),
-      new Order({
-        dish: new Set(createDish()),
-      }),
     ];
 
     super.onInitialize(engine);

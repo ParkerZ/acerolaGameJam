@@ -19,12 +19,13 @@ export class FoodBase extends HoldableItem {
     super({
       x,
       y,
+      z: 3,
     });
 
     this.statusBar = new StatusBar({
       x: 0,
       y: 0,
-      z: 2,
+      z: 3,
       maxVal: 0,
       size: "sm",
       color: COLORS.green,

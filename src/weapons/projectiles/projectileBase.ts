@@ -4,7 +4,7 @@ import { FoodBase } from "../../items/foodItems/foodBase";
 import { EnemyBase } from "../../enemies/enemyBase";
 
 export class ProjectileBase extends ex.Actor {
-  private sprite: ex.Graphic;
+  private sprite?: ex.Graphic;
   private decayMS: number;
   private direction: ex.Vector;
   private knockBack: number;
@@ -33,7 +33,7 @@ export class ProjectileBase extends ex.Actor {
     decayMS: number;
     damage: number;
     knockBack: number;
-    sprite: ex.Graphic;
+    sprite?: ex.Graphic;
     collider: ex.PolygonCollider;
     canMultiHitEnemy?: boolean;
   }) {
@@ -65,7 +65,10 @@ export class ProjectileBase extends ex.Actor {
   }
 
   onInitialize(engine: ex.Engine<any>): void {
-    this.graphics.use(this.sprite);
+    if (this.sprite) {
+      this.graphics.use(this.sprite);
+    }
+
     this.vel = ex.vec(
       this.direction.x * this.speed,
       this.direction.y * this.speed

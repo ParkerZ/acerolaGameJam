@@ -2,16 +2,23 @@ import * as ex from "excalibur";
 import { ProjectileBase } from "./projectiles/projectileBase";
 import { ProjectileKnife } from "./projectiles/projectileKnife";
 import { getElapsedTime } from "../util";
+import { ProjectileHandgun } from "./projectiles/projectileHandgun";
+import { ProjectileRayGun } from "./projectiles/projectileRaygun";
 
 export class WeaponBase extends ex.Actor {
   protected cooldownMS: number;
   protected onCooldown: boolean = false;
   protected nearCooldownEnd: boolean = false;
-  protected Projectile: typeof ProjectileKnife;
+  protected Projectile:
+    | typeof ProjectileKnife
+    | typeof ProjectileHandgun
+    | typeof ProjectileRayGun;
   protected movementPenalty: number;
   protected numProjectiles: number;
   protected spreadTotalAngleRadians: number;
   protected lastAttackTime?: Date;
+  protected animation?: ex.Animation;
+  protected animationTimeoutMs: number = 0;
 
   constructor({
     cooldownMS,
@@ -22,7 +29,10 @@ export class WeaponBase extends ex.Actor {
   }: {
     cooldownMS: number;
     movementPenalty: number;
-    Projectile: typeof ProjectileKnife;
+    Projectile:
+      | typeof ProjectileKnife
+      | typeof ProjectileHandgun
+      | typeof ProjectileRayGun;
     numProjectiles?: number;
     spreadTotalAngleRadians?: number;
   }) {
@@ -77,6 +87,24 @@ export class WeaponBase extends ex.Actor {
         direction: newDir,
       });
       engine.add(projectile);
+
+      if (this.animation) {
+        const animation = new ex.Actor({
+          x: playerPos.x + direction.x * 50,
+          y: playerPos.y + direction.y * 50,
+          rotation: newDir.toAngle() + Math.PI / 2,
+          z: 5,
+        });
+
+        animation.graphics.use(this.animation.clone());
+
+        engine.add(animation);
+
+        engine.clock.schedule(() => {
+          animation.kill();
+          engine.remove(animation);
+        }, this.animationTimeoutMs);
+      }
     }
   }
 

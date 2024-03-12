@@ -109,7 +109,7 @@ export class KitchenBase extends ex.Scene {
     }
 
     const elapsedTime = getElapsedTime(this.lastOrderTime);
-    if (elapsedTime >= ORDER_DELAY_MS && this.currentOrders.length < 4) {
+    if (elapsedTime >= ORDER_DELAY_MS && this.currentOrders.length < 5) {
       this.distributeOrders(engine);
       this.lastOrderTime = new Date();
     }

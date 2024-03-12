@@ -8,7 +8,13 @@ import {
 } from "./constants";
 import { ActorEvents } from "excalibur/build/dist/Actor";
 import { StatusBar } from "./statusBar";
-import { mainSpriteSheet } from "./resources";
+import {
+  orderBgRedSprite,
+  orderBgSprite,
+  orderProfile1Sprite,
+  orderProfile2Sprite,
+  orderProfile3Sprite,
+} from "./resources";
 import { getElapsedTime, shuffleArray } from "./util";
 
 export class Order extends ex.ScreenElement {
@@ -24,6 +30,13 @@ export class Order extends ex.ScreenElement {
   protected startTime: Date;
 
   private statusBar: StatusBar;
+  private profile: ex.ScreenElement;
+  private profileStage: number = 1;
+  private bgSprite: ex.Sprite = orderBgSprite;
+
+  protected profile1Sprite = orderProfile1Sprite;
+  protected profile2Sprite = orderProfile2Sprite;
+  protected profile3Sprite = orderProfile3Sprite;
 
   constructor({
     x = 10,
@@ -50,6 +63,9 @@ export class Order extends ex.ScreenElement {
       color: COLORS.blue,
       complementaryColor: COLORS.blueLight,
     });
+    this.profile = new ex.ScreenElement({
+      anchor: ex.Vector.Half,
+    });
     this.startTime = new Date();
   }
 
@@ -67,8 +83,9 @@ export class Order extends ex.ScreenElement {
 
   public setPosByIndex(index: number) {
     // margin + (height + margin) * index
-    this.pos.y = 10 + (128 + 10) * index;
-    this.statusBar.setPos(this.pos.add(ex.vec(64, 100)));
+    this.pos.y = 10 + (110 + 7) * index;
+    this.statusBar.setPos(this.pos.add(ex.vec(156 / 2, 95)));
+    this.profile.pos = this.pos.add(ex.vec(156 / 3, 45));
   }
 
   public setIsComplete(val: boolean) {
@@ -76,26 +93,32 @@ export class Order extends ex.ScreenElement {
   }
 
   private updateGraphics() {
-    const box = new ex.Rectangle({
-      height: 128,
-      width: 128,
-      color: ex.Color.White,
-    });
-
     const members: ex.GraphicsGrouping[] = [
-      { graphic: box, offset: ex.Vector.Zero },
+      { graphic: this.bgSprite, offset: ex.Vector.Zero },
     ];
 
-    Array.from(this.dishIngredients).forEach((foodType, i) => {
-      const graphic = FOOD_TYPE_SPRITE_MAP[foodType];
+    const dishArr = Array.from(this.dishIngredients);
+    if (dishArr.length === 2) {
+      const graphic1 = FOOD_TYPE_SPRITE_MAP[dishArr[0]].clone();
+      graphic1.scale = ex.vec(0.8, 0.8);
+      members.push({
+        graphic: graphic1,
+        offset: ex.vec(92, 0),
+      });
+
+      const graphic2 = FOOD_TYPE_SPRITE_MAP[dishArr[1]].clone();
+      graphic2.scale = ex.vec(0.8, 0.8);
+      members.push({
+        graphic: graphic2,
+        offset: ex.vec(92, 42),
+      });
+    } else {
+      const graphic = FOOD_TYPE_SPRITE_MAP[dishArr[0]].clone();
       members.push({
         graphic,
-        offset: ex.vec(
-          64 - this.dishIngredients.size * 32 + graphic.width * i,
-          box.height / 4
-        ),
+        offset: ex.vec(86, 12),
       });
-    });
+    }
 
     const graphic = new ex.GraphicsGroup({
       members,
@@ -107,7 +130,9 @@ export class Order extends ex.ScreenElement {
   onInitialize(engine: ex.Engine<any>): void {
     this.startTime = new Date();
     engine.add(this.statusBar);
+    engine.add(this.profile);
     this.updateGraphics();
+    this.profile.graphics.use(this.profile1Sprite);
   }
 
   onPreUpdate(engine: ex.Engine<any>, delta: number): void {
@@ -122,11 +147,26 @@ export class Order extends ex.ScreenElement {
       return;
     }
 
+    if (this.profileStage === 2 && elapsedTime >= (this.waitTimeMs * 2) / 3) {
+      this.profileStage = 3;
+      this.profile.graphics.use(this.profile3Sprite);
+      this.bgSprite = orderBgRedSprite;
+      this.statusBar.setColors(COLORS.red, COLORS.redLight);
+      this.updateGraphics();
+    }
+
+    if (this.profileStage === 1 && elapsedTime >= (this.waitTimeMs * 1) / 3) {
+      this.profileStage = 2;
+      this.profile.graphics.use(this.profile2Sprite);
+    }
+
     this.statusBar.setCurrVal(Math.max(this.waitTimeMs - elapsedTime, 0));
   }
 
   onPreKill(scene: ex.Scene<unknown>): void {
     this.statusBar.kill();
+    this.profile.kill();
     scene.engine.remove(this.statusBar);
+    scene.engine.remove(this.profile);
   }
 }

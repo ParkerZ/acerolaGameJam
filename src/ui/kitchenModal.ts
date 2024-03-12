@@ -102,8 +102,10 @@ export class KitchenModal extends ex.ScreenElement {
       weaponOptions.delete(Weapon);
 
       const weaponForSale = new Weapon({
-        x: engine.halfDrawWidth - 100 * ((this.numWeapons - 1) / 2) + i * 100,
-        y: engine.halfDrawHeight,
+        x: engine.halfDrawWidth - 170 * ((this.numWeapons - 1) / 2) + i * 170,
+        y: engine.halfDrawHeight + 45,
+        color: this.modalColor === "green" ? "purple" : "green",
+        player: this.player,
       });
 
       engine.add(weaponForSale);

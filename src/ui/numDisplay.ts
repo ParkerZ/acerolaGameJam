@@ -35,6 +35,15 @@ export class NumDisplay extends ex.ScreenElement {
     this.num = num;
   }
 
+  public setPos(val: ex.Vector) {
+    this.pos = val;
+  }
+
+  public setNum(val: number) {
+    this.num = val;
+    this.updateGraphics();
+  }
+
   onInitialize(engine: ex.Engine<any>): void {
     this.updateGraphics();
   }

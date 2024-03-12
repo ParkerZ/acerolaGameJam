@@ -1,16 +1,28 @@
 import * as ex from "excalibur";
-import { chefSprite, mainSpriteSheet } from "./resources";
+import {
+  chefKnifeSprite,
+  chefPistolSprite,
+  chefShotgunSprite,
+  chefSniperSprite,
+  chefSprite,
+  mainSpriteSheet,
+} from "./resources";
 import { CounterBase } from "./counters/counterBase";
 import { WeaponBase } from "./weapons/weaponBase";
 import { HoldableItem } from "./items/holdableItem";
 import { Plate } from "./items/plate";
 import { StatusBar } from "./statusBar";
-import { WeaponType } from "./types";
+import { UIColor, WeaponType } from "./types";
 import { FoodBase } from "./items/foodItems/foodBase";
 import { PlateRack } from "./counters/plateRack";
 import { CoinHud } from "./coinHud";
 import { Knife } from "./weapons/knife";
 import { COLORS } from "./constants";
+import { Handgun } from "./weapons/handgun";
+import { SubMachineGun } from "./weapons/subMachineGun";
+import { Shotgun } from "./weapons/shotgun";
+import { HeavyMachineGun } from "./weapons/heavyMachineGun";
+import { Sniper } from "./weapons/sniper";
 
 export class Player extends ex.Actor {
   private isEnabled = true;
@@ -39,7 +51,7 @@ export class Player extends ex.Actor {
     super({
       x,
       y,
-      z: 2,
+      z: 3,
       collisionType: ex.CollisionType.Active,
       collisionGroup: ex.CollisionGroupManager.groupByName("player"),
       collider: ex.Shape.Capsule(48, 48),
@@ -58,18 +70,19 @@ export class Player extends ex.Actor {
     this.coinHud = new CoinHud({
       x: 0,
       y: 0,
+      color: "purple",
     });
 
-    this.sprite = chefSprite.clone();
+    this.sprite = chefKnifeSprite.clone();
   }
 
   public setPos(pos: ex.Vector) {
     this.pos = pos;
   }
 
-  public setIsEnabled(engine: ex.Engine<any>, val: boolean) {
+  public setIsEnabled(engine: ex.Engine<any>, val: boolean, color?: UIColor) {
     if (val) {
-      this.onEnable(engine);
+      this.onEnable(engine, color ?? "purple");
 
       engine.clock.schedule(() => {
         this.isEnabled = val;
@@ -126,6 +139,26 @@ export class Player extends ex.Actor {
   public switchWeapon(Weapon: WeaponType) {
     this.weapon.kill();
     this.weapon = new Weapon();
+
+    switch (Weapon) {
+      case Handgun:
+      case SubMachineGun:
+        this.sprite = chefPistolSprite.clone();
+        break;
+      case Shotgun:
+        this.sprite = chefShotgunSprite.clone();
+        break;
+      case HeavyMachineGun:
+      case Sniper:
+        this.sprite = chefSniperSprite.clone();
+        break;
+      case Knife:
+      default:
+        this.sprite = chefKnifeSprite.clone();
+        break;
+    }
+
+    this.graphics.use(this.sprite);
   }
 
   public handleEnemyAttack(
@@ -147,9 +180,11 @@ export class Player extends ex.Actor {
     }, this.damageCooldownMs);
   }
 
-  public showCoinHud(engine: ex.Engine<any>) {
+  public showCoinHud(engine: ex.Engine<any>, color: UIColor) {
     engine.remove(this.coinHud);
-    this.coinHud.setPos(ex.vec((engine.drawWidth * 88.9) / 100, 10));
+    this.coinHud.setColor(color);
+    this.coinHud.setPos(ex.vec((engine.drawWidth * 84.5) / 100, 10));
+    this.coinHud.showNumber(engine);
     engine.add(this.coinHud);
   }
 
@@ -172,7 +207,7 @@ export class Player extends ex.Actor {
     );
   }
 
-  private registerHud(engine: ex.Engine<any>): void {
+  private registerHud(engine: ex.Engine<any>, color: UIColor): void {
     engine.remove(this.healthBar);
     this.healthBar.setPos(
       ex.vec(engine.halfDrawWidth, (engine.drawHeight * 94) / 100)
@@ -180,11 +215,11 @@ export class Player extends ex.Actor {
     engine.add(this.healthBar);
     this.healthBar.registerInnerBar(engine);
 
-    this.showCoinHud(engine);
+    this.showCoinHud(engine, color);
   }
 
-  private onEnable(engine: ex.Engine<any>) {
-    this.registerHud(engine);
+  private onEnable(engine: ex.Engine<any>, color: UIColor) {
+    this.registerHud(engine, color);
     this.heldItem = undefined;
     this.vel = ex.Vector.Zero;
     this.isAttacking = false;

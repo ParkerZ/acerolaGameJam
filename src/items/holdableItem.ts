@@ -4,11 +4,11 @@ export class HoldableItem extends ex.Actor {
   protected sprite?: ex.Graphic;
   protected isHeld: boolean = false;
 
-  constructor({ x, y }: { x: number; y: number }) {
+  constructor({ x, y, z = 3 }: { x: number; y: number; z?: number }) {
     super({
       x,
       y,
-      z: 2,
+      z,
       collisionType: ex.CollisionType.Passive,
       collider: ex.Shape.Capsule(30, 30),
     });
